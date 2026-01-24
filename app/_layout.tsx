@@ -7,7 +7,8 @@ import {
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
+import { View } from 'react-native';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -30,17 +31,25 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
+  const onLayoutRootView = useCallback(async () => {
+    if (loaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
   if (!loaded && !error) {
     return null;
   }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
+      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </View>
     </ThemeProvider>
   );
 }

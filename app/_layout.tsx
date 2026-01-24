@@ -7,12 +7,13 @@ import {
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuroraBackground } from '@/src/components/background/AuroraBackground';
+import { CustomSplash } from '@/src/components/CustomSplash';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -23,6 +24,7 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [splashComplete, setSplashComplete] = useState(false);
   const [loaded, error] = useFonts({
     'Inter-Regular': Inter_400Regular,
     'Inter-Bold': Inter_700Bold,
@@ -34,6 +36,7 @@ export default function RootLayout() {
 
   const onLayoutRootView = useCallback(async () => {
     if (loaded) {
+      // Hide native splash screen
       await SplashScreen.hideAsync();
     }
   }, [loaded]);
@@ -46,10 +49,15 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
         <AuroraBackground>
-          <Stack>
+          <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
+          
+          {!splashComplete && (
+            <CustomSplash onAnimationComplete={() => setSplashComplete(true)} />
+          )}
+          
           <StatusBar style="auto" />
         </AuroraBackground>
       </View>

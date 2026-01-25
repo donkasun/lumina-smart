@@ -26,6 +26,10 @@ const MAPPING = {
   'cloud.sun.fill': 'wb-sunny',
   'drop.fill': 'opacity',
   'moon.fill': 'nights-stay',
+  'car.fill': 'directions-car',
+  'briefcase.fill': 'work',
+  'tv.fill': 'tv',
+  'video.fill': 'videocam',
 } as IconMapping;
 
 /**

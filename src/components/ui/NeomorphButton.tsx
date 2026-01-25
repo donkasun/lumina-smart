@@ -18,6 +18,8 @@ interface NeomorphButtonProps extends ViewProps {
   disabled?: boolean;
   width?: number;
   height?: number;
+  offSetX?: number;
+  offSetY?: number;
   borderRadius?: number;
   children?: React.ReactNode;
 }
@@ -49,6 +51,8 @@ export const NeomorphButton: React.FC<NeomorphButtonProps> = ({
   children,
   width = 160,
   height = 160,
+  offSetX = 6,
+  offSetY = 6,
   borderRadius = 30,
   onPress,
   style,
@@ -112,8 +116,8 @@ export const NeomorphButton: React.FC<NeomorphButtonProps> = ({
             color={baseColor}
           >
             {/* Outer shadows (depth) */}
-            <Shadow dx={6} dy={6} blur={3} color={shadowDark} />
-            <Shadow dx={-6} dy={-6} blur={3} color={shadowLight} />
+            <Shadow dx={offSetX} dy={offSetY} blur={3} color={shadowDark} />
+            <Shadow dx={-offSetX} dy={-offSetY} blur={3} color={shadowLight} />
             
             {/* Inner shadows (recessed effect on press) */}
             <Shadow dx={4} dy={4} blur={3} color={innerShadowDark} inner />

@@ -21,6 +21,7 @@ export const Colors = {
     tabIconDefault: "#877D76",
     tabIconSelected: tintColorLight,
     accent: "#FF7F5C",
+    // highLight: "#fcd1c5",
     activeText: "#10916D",
   },
   dark: {
@@ -34,7 +35,8 @@ export const Colors = {
     tabIconDefault: "#9BA1A6",
     tabIconSelected: tintColorDark,
     accent: "#FF7F5C",
-    activeText: "#10916D",
+    // highLight: "#FF7F5C",
+    activeText: "#03a376",
   },
 };
 

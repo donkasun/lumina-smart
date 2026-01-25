@@ -10,6 +10,7 @@ import {
   useSharedValue,
   withSpring
 } from 'react-native-reanimated';
+import { Scenario, useDeviceStore } from '../../store/useDeviceStore';
 
 interface CategoryItemProps {
   icon: string;
@@ -34,7 +35,7 @@ const CategoryItem = ({ icon, label, isActive, onPress }: CategoryItemProps) => 
 
   // Interpolate only inner shadows
   const innerShadowDarkColor = useDerivedValue(() => {
-    return interpolateColor(transition.value, [0, 1], ['transparent', shadowDark]);
+    return interpolateColor(transition.value, [0, 1], ['transparent', `${activeColor}54`]);
   });
   const innerShadowLightColor = useDerivedValue(() => {
     return interpolateColor(transition.value, [0, 1], ['transparent', shadowLight]);
@@ -73,9 +74,10 @@ const CategoryItem = ({ icon, label, isActive, onPress }: CategoryItemProps) => 
 };
 
 export const DashboardCategories = () => {
-  const [activeCategory, setActiveCategory] = useState('Morning');
+  const [activeCategory, setActiveCategory] = useState<Scenario>('Morning');
+  const setScenario = useDeviceStore(state => state.setScenario);
 
-  const categories = [
+  const categories: { id: Scenario; label: string; icon: string }[] = [
     { id: 'Morning', label: 'Morning', icon: 'cloud.sun.fill' },
     { id: 'Away', label: 'Away', icon: 'car.fill' },
     { id: 'Work', label: 'Work', icon: 'briefcase.fill' },
@@ -83,8 +85,13 @@ export const DashboardCategories = () => {
     { id: 'Sleep', label: 'Sleep', icon: 'moon.fill' },
   ];
 
+  const handlePress = (id: Scenario) => {
+    setActiveCategory(id);
+    setScenario(id);
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={styles.scrollWrapper}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -96,7 +103,7 @@ export const DashboardCategories = () => {
             icon={cat.icon}
             label={cat.label}
             isActive={activeCategory === cat.id}
-            onPress={() => setActiveCategory(cat.id)}
+            onPress={() => handlePress(cat.id)}
           />
         ))}
       </ScrollView>
@@ -105,10 +112,12 @@ export const DashboardCategories = () => {
 };
 
 const styles = StyleSheet.create({
+  scrollWrapper: {
+    height: 90,
+  },
   container: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 12,
+    alignItems: 'center',
   },
   itemContainer: {
     alignItems: 'center',

@@ -95,8 +95,8 @@ export const WeatherPill: React.FC = () => {
           </RoundedRect>
         </Canvas>
         <View style={styles.pillContent}>
-          <IconSymbol name="cloud.sun.fill" size={16} color={accentColor} />
-          <ThemedText style={[styles.weatherText, { color: textColor }]}>72°F</ThemedText>
+          <IconSymbol name="cloud.sun.fill" size={16} color={'#FFD54F'} />
+          <ThemedText style={[styles.weatherText, { color: textColor }]}>25°C</ThemedText>
         </View>
       </Animated.View>
       
@@ -116,7 +116,7 @@ export const WeatherPill: React.FC = () => {
           </RoundedRect>
         </Canvas>
         <View style={styles.pillContent}>
-          <IconSymbol name="drop.fill" size={16} color={accentColor} />
+          <IconSymbol name="drop.fill" size={16} color={`#7CCFFF`} />
           <ThemedText style={[styles.weatherText, { color: textColor }]}>65%</ThemedText>
         </View>
       </Animated.View>

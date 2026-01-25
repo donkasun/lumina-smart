@@ -6,21 +6,25 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
-  withSpring
+  useDerivedValue,
+  withSpring,
 } from 'react-native-reanimated';
 import { formatHeaderDate, getTimeBasedGreeting } from '../../utils/date';
 
 export const DashboardHeader: React.FC = () => {
   const [showHumidity, setShowHumidity] = useState(false);
-  const flipRotation = withSpring(showHumidity ? 180 : 0);
+
+  const rotation = useDerivedValue(() => {
+    return withSpring(showHumidity ? 180 : 0, { damping: 15, mass: 0.8 });
+  }, [showHumidity]);
 
   const frontStyle = useAnimatedStyle(() => ({
-    transform: [{ rotateX: `${flipRotation}deg` }],
+    transform: [{ rotateX: `${rotation.value}deg` }],
     backfaceVisibility: 'hidden',
   }));
 
   const backStyle = useAnimatedStyle(() => ({
-    transform: [{ rotateX: `${flipRotation - 180}deg` }],
+    transform: [{ rotateX: `${rotation.value - 180}deg` }],
     position: 'absolute',
     top: 0,
     left: 0,
@@ -49,15 +53,15 @@ export const DashboardHeader: React.FC = () => {
           style={styles.weatherPill}
           tint={showHumidity ? 'light' : 'dark'}
         >
-          <Animated.View style={styles.pillContent}>
+          <Animated.View style={[styles.pillContent, frontStyle]}>
             <IconSymbol name="cloud.sun.fill" size={16} color="#FFD54F" />
             <ThemedText style={[styles.weatherText, { color: textColor }]}>24°C</ThemedText>
           </Animated.View>
           
-          {/* <Animated.View style={[styles.pillContent, backStyle]}>
+          <Animated.View style={[styles.pillContent, backStyle]}>
             <IconSymbol name="drop.fill" size={16} color="#7CCFFF" />
             <ThemedText style={styles.weatherText}>65%</ThemedText>
-          </Animated.View> */}
+          </Animated.View>
         </GlassView>
       </Pressable>
     </View>

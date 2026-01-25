@@ -13,7 +13,6 @@ export const DashboardHeader: React.FC = () => {
         <ThemedText style={styles.date}>Lumina Smart</ThemedText>
         <ThemedText type="title" style={styles.greeting}>{greeting}</ThemedText>
       </View>
-
       <WeatherPill />
     </View>
   );
@@ -26,7 +25,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 60,
-    paddingBottom: 20,
+    paddingBottom: 12,
   },
   headerLeft: {
     gap: 2,

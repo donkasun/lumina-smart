@@ -1,9 +1,9 @@
-import React from 'react';
-import { StyleSheet, View, ScrollView, Pressable } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Canvas, Circle, Shadow } from '@shopify/react-native-skia';
+import React from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 interface CategoryItemProps {
   icon: string;
@@ -23,27 +23,26 @@ const CategoryItem = ({ icon, label, isActive }: CategoryItemProps) => {
       <View style={styles.iconWrapper}>
         <Canvas style={styles.canvas}>
           <Circle cx={32} cy={32} r={28} color={surfaceColor}>
-            {!isActive && (
-              <>
-                <Shadow dx={4} dy={4} blur={8} color={shadowDark} />
-                <Shadow dx={-4} dy={-4} blur={8} color={shadowLight} />
-              </>
-            )}
+            <Shadow dx={2} dy={2} blur={3} color={shadowDark} />
+            <Shadow dx={-2} dy={-2} blur={3} color={shadowLight} />
             {isActive && (
-              <Shadow dx={0} dy={0} blur={10} color={`${activeColor}33`} />
+              <>
+                <Shadow dx={2} dy={2} blur={3} color={`${activeColor}33`} inner />
+                <Shadow dx={-2} dy={-2} blur={3} color={shadowLight} inner />
+              </>
             )}
           </Circle>
         </Canvas>
         <View style={styles.icon}>
-          <IconSymbol 
-            name={icon as any} 
-            size={24} 
-            color={isActive ? activeColor : inactiveColor} 
+          <IconSymbol
+            name={icon as any}
+            size={24}
+            color={isActive ? activeColor : inactiveColor}
           />
         </View>
       </View>
       <ThemedText style={[
-        styles.label, 
+        styles.label,
         { color: isActive ? activeColor : inactiveColor }
       ]}>
         {label}
@@ -54,9 +53,9 @@ const CategoryItem = ({ icon, label, isActive }: CategoryItemProps) => {
 
 export const DashboardCategories = () => {
   return (
-    <ScrollView 
-      horizontal 
-      showsHorizontalScrollIndicator={false} 
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.container}
     >
       <CategoryItem icon="cloud.sun.fill" label="Morning" isActive />
@@ -69,19 +68,20 @@ export const DashboardCategories = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    gap: 20,
-    paddingVertical: 10,
+    width: '100%',
+    paddingHorizontal: 16,
+    gap: 8,
   },
   itemContainer: {
     alignItems: 'center',
-    gap: 8,
+    gap: 2,
   },
   iconWrapper: {
     width: 64,
     height: 64,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'visible',
   },
   canvas: {
     ...StyleSheet.absoluteFillObject,
@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
+    lineHeight: 14,
     fontWeight: '700',
   },
 });

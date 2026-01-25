@@ -61,7 +61,7 @@ const TabBarBackground = ({ surfaceColor, shadowDark, shadowLight }: any) => {
         {width > 0 && (
           <RoundedRect
             x={16}
-            y={2}
+            y={4}
             width={width}
             height={60}
             r={40}
@@ -97,9 +97,9 @@ export default function TabLayout() {
           backgroundColor: 'transparent',
           elevation: 0,
           bottom: Platform.OS === 'ios' ? 34 : 24,
-          left: 16,
-          right: 16,
           height: 68,
+          paddingHorizontal: 16,
+          width: Dimensions.get('window').width,
         },
         tabBarBackground: () => (
           <TabBarBackground 

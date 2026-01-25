@@ -13,7 +13,7 @@ export const Colors = {
     text: "#463F3A",
     background: "#F9F5F1",
     surface: "#F9F5F1",
-    shadowDark: "#F3ECE4",
+    shadowDark: "#f0e6da",
     shadowLight: "#FFFFFF",
     tint: tintColorLight,
     icon: "#877D76",

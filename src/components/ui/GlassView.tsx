@@ -1,6 +1,6 @@
-import React from 'react';
-import { StyleSheet, View, Platform, ViewProps } from 'react-native';
 import { BlurView } from 'expo-blur';
+import React from 'react';
+import { Platform, StyleSheet, View, ViewProps } from 'react-native';
 
 interface GlassViewProps extends ViewProps {
   intensity?: number;
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
  */
 export const GlassView: React.FC<GlassViewProps> = ({
   children,
-  intensity = 40,
+  intensity = 100,
   tint = 'dark',
   style,
   ...props
@@ -41,7 +41,7 @@ export const GlassView: React.FC<GlassViewProps> = ({
     return (
       <BlurView
         intensity={intensity}
-        tint={tint}
+        // tint={tint}
         style={[styles.glass, style]}
         {...props}
       >

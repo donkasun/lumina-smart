@@ -65,6 +65,18 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
   // Animation state for press
   const pressed = useSharedValue(0); // 0 = unpressed, 1 = pressed
 
+  const handlePressIn = () => {
+    if (onPress && !props.disabled) {
+      pressed.value = withSpring(1, { damping: 20, stiffness: 300 });
+    }
+  };
+
+  const handlePressOut = () => {
+    if (onPress && !props.disabled) {
+      pressed.value = withSpring(0, { damping: 20, stiffness: 300 });
+    }
+  };
+
   // Derived shadow colors (fade in on press)
   const innerShadowDark = useDerivedValue(() => {
     return interpolateColor(pressed.value, [0, 1], ['transparent', shadowDark]);
@@ -77,12 +89,13 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={() => (pressed.value = withSpring(1, { damping: 20, stiffness: 500 }))}
-      onPressOut={() => (pressed.value = withSpring(0, { damping: 20, stiffness: 500 }))}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       style={({ pressed: isPressed }) => [
         styles.buttonContainer,
         { width, height },
         style,
+        { transform: [{ scale: (isPressed && onPress && !props.disabled) ? 0.98 : 1 }] }
       ]}
       {...props}
     >

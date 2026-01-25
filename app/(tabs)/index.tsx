@@ -1,12 +1,15 @@
-import React from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
-import { DashboardHeader } from '@/src/features/dashboard/DashboardHeader';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { DashboardGrid } from '@/src/features/dashboard/DashboardGrid';
+import { DashboardHeader } from '@/src/features/dashboard/DashboardHeader';
+import React from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 export default function DashboardScreen() {
+
+  const backgroundColor = useThemeColor({}, 'background');
   return (
     <ScrollView 
-      style={styles.container} 
+      style={[styles.container, { backgroundColor }]} 
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >

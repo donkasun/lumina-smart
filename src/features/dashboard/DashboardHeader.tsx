@@ -1,12 +1,13 @@
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { GlassView } from '@/src/components/ui/GlassView';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   withSpring
 } from 'react-native-reanimated';
-import { GlassView } from '../../components/ui/GlassView';
 import { formatHeaderDate, getTimeBasedGreeting } from '../../utils/date';
 
 export const DashboardHeader: React.FC = () => {
@@ -31,6 +32,9 @@ export const DashboardHeader: React.FC = () => {
   const dateString = formatHeaderDate();
   const greeting = getTimeBasedGreeting('Kasun');
 
+
+  // const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
   return (
     <View style={styles.container}>
       <View>
@@ -45,9 +49,9 @@ export const DashboardHeader: React.FC = () => {
           style={styles.weatherPill}
           tint={showHumidity ? 'light' : 'dark'}
         >
-          <Animated.View style={[styles.pillContent, frontStyle]}>
+          <Animated.View style={styles.pillContent}>
             <IconSymbol name="cloud.sun.fill" size={16} color="#FFD54F" />
-            <ThemedText style={styles.weatherText}>24°C</ThemedText>
+            <ThemedText style={[styles.weatherText, { color: textColor }]}>24°C</ThemedText>
           </Animated.View>
           
           {/* <Animated.View style={[styles.pillContent, backStyle]}>
@@ -86,6 +90,7 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     overflow: 'hidden',
+    // backgroundColor:'white'
   },
   pillContent: {
     flexDirection: 'row',
@@ -98,6 +103,6 @@ const styles = StyleSheet.create({
   weatherText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#ECEDEE',
+    // color: '#ECEDEE',
   },
 });

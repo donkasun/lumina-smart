@@ -20,9 +20,9 @@ export const CustomSplash: React.FC<CustomSplashProps> = ({ onAnimationComplete 
   const progress = useSharedValue(0); // 0 to 1
 
   useEffect(() => {
-    // Start animation sequence
+    // Start animation sequence after 5 seconds
     progress.value = withDelay(
-      500,
+      5000,
       withSpring(1, { damping: 15, stiffness: 90 }, (finished) => {
         if (finished) {
           runOnJS(onAnimationComplete)();

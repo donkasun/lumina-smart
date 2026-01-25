@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { GlassButton } from '@/src/components/ui/GlassButton';
+import { NeomorphButton } from '@/src/components/ui/NeomorphButton';
 import { DeviceCard } from '@/src/features/dashboard/DeviceCard';
 
 export default function ExploreScreen() {
@@ -19,16 +19,16 @@ export default function ExploreScreen() {
       </SafeAreaView>
 
       <View style={styles.content}>
-          <GlassButton 
-            onPress={() => console.log('Cool pressed!')}
-            width={60}
-            height={60}
-            borderRadius={10}
-          >
-            <ThemedText style={styles.icon}>❄️</ThemedText>
-            <ThemedText style={[styles.label, { color: textColor }]}>COOL</ThemedText>
-          </GlassButton>
-        <DeviceCard device={{
+                  <NeomorphButton 
+                    onPress={() => console.log('Cool pressed!')}
+                    width={60}
+                    height={60}
+                    borderRadius={10}
+                  >
+                    <Text style={styles.icon}>❄️</Text>
+                    <Text style={styles.label}>COOL</Text>
+                  </NeomorphButton>
+                  <DeviceCard device={{
           id: '1',
           name: 'Cool',
           type: 'ac',

@@ -13,7 +13,7 @@ import {
   withSpring
 } from 'react-native-reanimated';
 
-interface GlassButtonProps extends ViewProps {
+interface NeomorphButtonProps extends ViewProps {
   onPress?: () => void;
   disabled?: boolean;
   width?: number;
@@ -39,13 +39,13 @@ const styles = StyleSheet.create({
 });
 
 /**
- * REUSABLE COMPONENT: GlassButton (Neumorphic)
+ * REUSABLE COMPONENT: NeomorphButton (Neumorphic)
  * 
  * Uses Skia to draw a "Neumorphic" background with double shadows.
  * - Outer shadows provide depth when unpressed.
  * - Inner shadows appear when pressed to create a recessed effect.
  */
-export const GlassButton: React.FC<GlassButtonProps> = ({
+export const NeomorphButton: React.FC<NeomorphButtonProps> = ({
   children,
   width = 160,
   height = 160,

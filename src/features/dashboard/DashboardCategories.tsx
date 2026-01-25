@@ -48,7 +48,7 @@ const CategoryItem = ({ icon, label, isActive, onPress }: CategoryItemProps) => 
             {/* Outer Shadows (Always visible) */}
             <Shadow dx={2} dy={2} blur={3} color={shadowDark} />
             <Shadow dx={-2} dy={-2} blur={3} color={shadowLight} />
-            
+
             {/* Inner Shadows (Pressed/Active state transition) */}
             <Shadow dx={2} dy={2} blur={3} color={innerShadowDarkColor} inner />
             <Shadow dx={-2} dy={-2} blur={3} color={innerShadowLightColor} inner />
@@ -77,13 +77,14 @@ export const DashboardCategories = () => {
 
   const categories = [
     { id: 'Morning', label: 'Morning', icon: 'cloud.sun.fill' },
-    { id: 'Away', label: 'Away', icon: 'house.fill' },
-    { id: 'Movie', label: 'Movie', icon: 'paperplane.fill' },
+    { id: 'Away', label: 'Away', icon: 'car.fill' },
+    { id: 'Work', label: 'Work', icon: 'briefcase.fill' },
+    { id: 'Movie', label: 'Movie', icon: 'tv.fill' },
     { id: 'Sleep', label: 'Sleep', icon: 'moon.fill' },
   ];
 
   return (
-    <View>
+    <View style={styles.container}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -105,8 +106,9 @@ export const DashboardCategories = () => {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 12,
-    paddingVertical: 10,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   itemContainer: {
     alignItems: 'center',

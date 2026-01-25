@@ -22,9 +22,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     paddingTop: 60,
-    paddingBottom: 12,
+    paddingBottom: 24,
   },
   headerLeft: {
     gap: 2,

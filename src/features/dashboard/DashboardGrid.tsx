@@ -11,10 +11,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginLeft: -6,
     paddingRight: 6,
-    paddingTop: 20,
+    // paddingTop: 20,
   },
   cardWrapper: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
 });
 

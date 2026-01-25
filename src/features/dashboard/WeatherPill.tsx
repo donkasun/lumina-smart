@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { GlassView } from '@/src/components/ui/GlassView';
+import { Canvas, RoundedRect, Shadow } from '@shopify/react-native-skia';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -15,8 +15,12 @@ import Animated, {
 export const WeatherPill: React.FC = () => {
   const [showHumidity, setShowHumidity] = useState(false);
   const rotation = useSharedValue(0);
-  const textColor = useThemeColor({}, 'text');
+  
+  const surfaceColor = useThemeColor({}, 'surface');
+  const shadowDark = useThemeColor({}, 'shadowDark');
+  const shadowLight = useThemeColor({}, 'shadowLight');
   const accentColor = useThemeColor({}, 'accent');
+  const textColor = useThemeColor({}, 'text');
 
   // Automatic periodic flip for 3 cycles (6 toggles) after a 5s delay
   useEffect(() => {
@@ -75,32 +79,46 @@ export const WeatherPill: React.FC = () => {
       onPress={() => setShowHumidity(!showHumidity)}
       style={styles.weatherPillContainer}
     >
-      {/* Front Side: Temperature */}
-      <Animated.View style={[StyleSheet.absoluteFill, frontStyle]}>
-        <GlassView 
-          intensity={40} 
-          style={[styles.weatherPill, { backgroundColor: '#FFD54F1A', borderColor: '#FFD54F' }]}
-          tint="dark"
-        >
-          <View style={styles.pillContent}>
-            <IconSymbol name="cloud.sun.fill" size={14} color='#ffce30' />
-            <ThemedText style={[styles.weatherText, { color: textColor }]}>72°F</ThemedText>
-          </View>
-        </GlassView>
+      {/* Front Side: Temperature (Raised / Outer Shadows) */}
+      <Animated.View style={[styles.pillWrapper, frontStyle]}>
+        <Canvas style={StyleSheet.absoluteFill}>
+          <RoundedRect
+            x={4}
+            y={4}
+            width={76}
+            height={24}
+            r={12}
+            color={surfaceColor}
+          >
+            <Shadow dx={2} dy={2} blur={2} color={shadowDark} />
+            <Shadow dx={-2} dy={-2} blur={2} color={shadowLight} />
+          </RoundedRect>
+        </Canvas>
+        <View style={styles.pillContent}>
+          <IconSymbol name="cloud.sun.fill" size={16} color={accentColor} />
+          <ThemedText style={[styles.weatherText, { color: textColor }]}>72°F</ThemedText>
+        </View>
       </Animated.View>
       
-      {/* Back Side: Humidity */}
-      <Animated.View style={[StyleSheet.absoluteFill, backStyle]}>
-        <GlassView 
-          intensity={40} 
-          style={[styles.weatherPill, { backgroundColor: '#7CCFFF1A', borderColor: '#7CCFFF' }]}
-          tint="light"
-        >
-          <View style={styles.pillContent}>
-            <IconSymbol name="drop.fill" size={14} color='#7CCFFF' />
-            <ThemedText style={[styles.weatherText, { color: textColor }]}>65%</ThemedText>
-          </View>
-        </GlassView>
+      {/* Back Side: Humidity (Pressed / Inner Shadows) */}
+      <Animated.View style={[styles.pillWrapper, backStyle]}>
+        <Canvas style={StyleSheet.absoluteFill}>
+          <RoundedRect
+            x={4}
+            y={4}
+            width={76}
+            height={24}
+            r={12}
+            color={surfaceColor}
+          >
+            <Shadow dx={2} dy={2} blur={2} color={shadowDark} inner />
+            <Shadow dx={-2} dy={-2} blur={2} color={shadowLight} inner />
+          </RoundedRect>
+        </Canvas>
+        <View style={styles.pillContent}>
+          <IconSymbol name="drop.fill" size={16} color={accentColor} />
+          <ThemedText style={[styles.weatherText, { color: textColor }]}>65%</ThemedText>
+        </View>
       </Animated.View>
     </Pressable>
   );
@@ -108,13 +126,13 @@ export const WeatherPill: React.FC = () => {
 
 const styles = StyleSheet.create({
   weatherPillContainer: {
-    width: 72,
-    height: 28,
+    width: 84,
+    height: 32,
   },
-  weatherPill: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 16,
-    overflow: 'hidden',
+  pillWrapper: {
+    position: 'absolute',
+    width: 84,
+    height: 32,
   },
   pillContent: {
     flexDirection: 'row',
@@ -125,7 +143,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   weatherText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
   },
 });

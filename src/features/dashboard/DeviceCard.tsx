@@ -12,11 +12,11 @@ import Animated, {
 import { Device } from '../../store/useDeviceStore';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 32 - 16) / 2;
-const CARD_WRAPPER_WIDTH = CARD_WIDTH + 12;
+const CARD_WIDTH = (width - 32 - 32) / 2;
+const CARD_WRAPPER_WIDTH = CARD_WIDTH + 16;
 
-const BUTTON_WIDTH = 44;
-const BUTTON_WRAPPER_WIDTH = BUTTON_WIDTH + 12;
+const BUTTON_WIDTH = 50;
+const BUTTON_WRAPPER_WIDTH = BUTTON_WIDTH + 8;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -68,7 +68,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
             y={6}
             width={CARD_WIDTH}
             height={CARD_WIDTH}
-            r={16}
+            r={32}
             color={surfaceColor}
           >
             <Shadow dx={4} dy={4} blur={3} color={shadowDark} />
@@ -81,7 +81,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
         <View style={styles.header}>
           <View style={styles.iconWrapper}>
             <Canvas style={styles.iconCanvas}>
-              <RoundedRect x={10} y={10} width={36} height={36} r={8} color={device.isOn ? accentColor : surfaceColor}>
+              <RoundedRect x={10} y={10} width={40} height={40} r={16} color={device.isOn ? accentColor : surfaceColor}>
                 {!device.isOn ? (
                   <>
                     <Shadow dx={4} dy={4} blur={3} color={shadowDark} />
@@ -96,7 +96,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
               name={getIconName(device.type) as any}
               size={24}
               color={device.isOn ? 'white' : inactiveIconColor}
-              style={{ marginLeft: -12, marginTop: -12 }}
+              style={{ marginLeft: -6, marginTop: -6 }}
             />
           </View>
           {device.isOn && (
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: CARD_WRAPPER_WIDTH - 40,
+    width: CARD_WRAPPER_WIDTH - 48,
   },
   iconWrapper: {
     width: BUTTON_WIDTH,
@@ -154,8 +154,8 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     width: BUTTON_WRAPPER_WIDTH,
     height: BUTTON_WRAPPER_WIDTH,
-    marginLeft: -12,
-    marginTop: -12,
+    marginLeft: -8,
+    marginTop: -8,
   },
   activeIndicator: {
     width: 12,
@@ -167,15 +167,16 @@ const styles = StyleSheet.create({
   },
   footer: {
     gap: 2,
-    // backgroundColor: 'red',
     width: CARD_WRAPPER_WIDTH - 40,
   },
   name: {
     fontSize: 16,
+    lineHeight: 18,
     fontWeight: '700',
   },
   status: {
     fontSize: 10,
+    lineHeight: 12,
     fontWeight: '700',
     textTransform: 'uppercase',
   },

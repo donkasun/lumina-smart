@@ -1,39 +1,50 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { DeviceCard } from './DeviceCard';
 import { useDeviceStore } from '../../store/useDeviceStore';
-
-const styles = StyleSheet.create({
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  cardWrapper: {
-    marginBottom: 0,
-  },
-});
+import { DeviceCard } from './DeviceCard';
 
 export const DashboardGrid: React.FC = () => {
   const { devices, toggleDevice } = useDeviceStore();
 
-  return (
-    <View style={styles.grid}>
-      {devices.map((device, index) => (
-        <Animated.View
-          key={device.id}
-          entering={FadeInDown.delay(index * 100).springify().damping(15)}
-          style={styles.cardWrapper}
-        >
+  // Split devices into two columns for masonry effect
+  const leftColumn = devices.filter((_, index) => index % 2 === 0);
+  const rightColumn = devices.filter((_, index) => index % 2 !== 0);
+
+  const renderColumn = (columnDevices: typeof devices) => (
+    <View style={styles.column}>
+      {columnDevices.map((device) => (
+        <View key={device.id} style={styles.cardWrapper}>
           <DeviceCard 
             device={device} 
             onPress={() => toggleDevice(device.id)} 
           />
-        </Animated.View>
+        </View>
       ))}
     </View>
   );
+
+  return (
+    <View style={styles.gridContainer}>
+      {renderColumn(leftColumn)}
+      {renderColumn(rightColumn)}
+    </View>
+  );
 };
+
+const styles = StyleSheet.create({
+  gridContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  column: {
+    flex: 1,
+    flexDirection: 'column',
+    // backgroundColor: 'blue',
+    // align items to start/end to ensure the gap in the middle is consistent
+  },
+  cardWrapper: {
+    marginBottom: 16,
+    alignItems: 'center',
+    // backgroundColor: 'green',
+  },
+});

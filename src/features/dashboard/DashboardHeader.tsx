@@ -1,78 +1,22 @@
 import { ThemedText } from '@/components/themed-text';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { GlassView } from '@/src/components/ui/GlassView';
-import React, { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  withSpring
-} from 'react-native-reanimated';
-import { formatHeaderDate, getTimeBasedGreeting } from '../../utils/date';
-
-export const DashboardHeader: React.FC = () => {
-  const [showHumidity, setShowHumidity] = useState(false);
-  const flipRotation = withSpring(showHumidity ? 180 : 0);
-
-  const frontStyle = useAnimatedStyle(() => ({
-    transform: [{ rotateX: `${flipRotation}deg` }],
-    backfaceVisibility: 'hidden',
-  }));
-
-  const backStyle = useAnimatedStyle(() => ({
-    transform: [{ rotateX: `${flipRotation - 180}deg` }],
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backfaceVisibility: 'hidden',
-  }));
-
-  const dateString = formatHeaderDate();
-  const greeting = getTimeBasedGreeting('Kasun');
-
-
-  // const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
-  return (
-    <View style={styles.container}>
-      <View>
-        {/* <ThemedText style={styles.date}>Lumina Smart {dateString}</ThemedText> */}
-        <ThemedText style={styles.date}>Lumina Smart</ThemedText>
-        <ThemedText type="title" style={styles.greeting}>{greeting}</ThemedText>
-      </View>
-
-      <Pressable onPress={() => setShowHumidity(!showHumidity)}>
-        <GlassView 
-          intensity={40} 
-          style={styles.weatherPill}
-          tint={showHumidity ? 'light' : 'dark'}
-        >
-          <Animated.View style={styles.pillContent}>
-            <IconSymbol name="cloud.sun.fill" size={16} color="#FFD54F" />
-            <ThemedText style={[styles.weatherText, { color: textColor }]}>24°C</ThemedText>
-          </Animated.View>
-          
-          {/* <Animated.View style={[styles.pillContent, backStyle]}>
-            <IconSymbol name="drop.fill" size={16} color="#7CCFFF" />
-            <ThemedText style={styles.weatherText}>65%</ThemedText>
-          </Animated.View> */}
-        </GlassView>
-      </Pressable>
-    </View>
-  );
-};
-
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { getTimeBasedGreeting } from '../../utils/date';
+import { WeatherPill } from './WeatherPill';
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 60,
+    paddingBottom: 20,
+  },
+  topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
+  },
+  headerLeft: {
+    gap: 2,
   },
   date: {
     fontSize: 12,
@@ -82,27 +26,39 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 20,
-    lineHeight: 20,
+    lineHeight: 24,
     marginTop: 4,
+    fontWeight: '700',
   },
-  weatherPill: {
-    width: 84,
-    height: 32,
-    borderRadius: 16,
-    overflow: 'hidden',
-    // backgroundColor:'white'
-  },
-  pillContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    justifyContent: 'center',
-    width: '100%',
-    height: '100%',
-  },
-  weatherText: {
-    fontSize: 12,
-    fontWeight: '600',
-    // color: '#ECEDEE',
+  extraContent: {
+    marginTop: 20,
   },
 });
+
+interface DashboardHeaderProps {
+  children?: React.ReactNode;
+}
+
+export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ children }) => {
+  const greeting = getTimeBasedGreeting('Kasun');
+  const textColor = useThemeColor({}, 'text');
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.topRow}>
+        <View style={styles.headerLeft}>
+          <ThemedText style={styles.date}>Lumina Smart</ThemedText>
+          <ThemedText type="title" style={[styles.greeting, { color: textColor }]}>{greeting}</ThemedText>
+        </View>
+
+        <WeatherPill />
+      </View>
+
+      {children && (
+        <View style={styles.extraContent}>
+          {children}
+        </View>
+      )}
+    </View>
+  );
+};

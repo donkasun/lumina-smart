@@ -167,6 +167,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     gap: 2,
+    // backgroundColor: 'red',
+    width: CARD_WRAPPER_WIDTH - 40,
   },
   name: {
     fontSize: 16,

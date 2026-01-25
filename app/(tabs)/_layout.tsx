@@ -61,14 +61,14 @@ const TabBarBackground = ({ surfaceColor, shadowDark, shadowLight }: any) => {
         {width > 0 && (
           <RoundedRect
             x={16}
-            y={4}
+            y={1}
             width={width}
             height={60}
             r={40}
             color={surfaceColor}
           >
-            <Shadow dx={4} dy={4} blur={3} color={shadowDark} />
-            <Shadow dx={-4} dy={-4} blur={3} color={shadowLight} />
+            <Shadow dx={0} dy={6} blur={4} color={`${shadowDark}54`} />
+            <Shadow dx={0} dy={-2} blur={1} color={shadowLight} />
           </RoundedRect>
         )}
       </Canvas>
@@ -82,8 +82,8 @@ export default function TabLayout() {
   const activeColor = useThemeColor({}, 'accent');
   const inactiveColor = Colors[theme].icon;
   const surfaceColor = Colors[theme].surface;
-  const shadowDark = Colors[theme].shadowDark;
   const shadowLight = Colors[theme].shadowLight;
+  const darkShadowColor = Colors[theme].icon;
 
   return (
     <Tabs
@@ -104,7 +104,7 @@ export default function TabLayout() {
         tabBarBackground: () => (
           <TabBarBackground 
             surfaceColor={surfaceColor} 
-            shadowDark={shadowDark} 
+            shadowDark={darkShadowColor} 
             shadowLight={shadowLight} 
           />
         ),

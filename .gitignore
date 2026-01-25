@@ -43,3 +43,5 @@ app-example
 /android
 firebase-debug.log
 *.log
+
+docs/

@@ -1,17 +1,21 @@
-import React from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
-import { DashboardHeader } from '@/src/features/dashboard/DashboardHeader';
-import { DashboardGrid } from '@/src/features/dashboard/DashboardGrid';
-import { DashboardCategories } from '@/src/features/dashboard/DashboardCategories';
 import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { DashboardCategories } from '@/src/features/dashboard/DashboardCategories';
+import { DashboardGrid } from '@/src/features/dashboard/DashboardGrid';
+import { DashboardHeader } from '@/src/features/dashboard/DashboardHeader';
+import React from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 export default function DashboardScreen() {
   const textColor = useThemeColor({}, 'text');
   
+  const backgroundColor = useThemeColor({}, 'background');
+  // const backgroundColor = 'red';
+  // const backgroundColor = 'gray';
+
   return (
     <ScrollView 
-      style={styles.container} 
+      style={[styles.container, { backgroundColor }]} 
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
@@ -38,7 +42,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   sectionHeader: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 30,
     paddingBottom: 10,
   },

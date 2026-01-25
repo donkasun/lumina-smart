@@ -15,8 +15,8 @@ const CategoryItem = ({ icon, label, isActive }: CategoryItemProps) => {
   const surfaceColor = useThemeColor({}, 'surface');
   const shadowDark = useThemeColor({}, 'shadowDark');
   const shadowLight = useThemeColor({}, 'shadowLight');
-  const activeColor = "#007AFF";
-  const inactiveColor = "#9BA1A6";
+  const activeColor = useThemeColor({}, 'accent');
+  const inactiveColor = useThemeColor({}, 'icon');
 
   return (
     <Pressable style={styles.itemContainer}>
@@ -30,7 +30,7 @@ const CategoryItem = ({ icon, label, isActive }: CategoryItemProps) => {
               </>
             )}
             {isActive && (
-              <Shadow dx={0} dy={0} blur={10} color="rgba(0, 122, 255, 0.2)" />
+              <Shadow dx={0} dy={0} blur={10} color={`${activeColor}33`} />
             )}
           </Circle>
         </Canvas>

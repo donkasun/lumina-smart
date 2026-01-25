@@ -6,6 +6,7 @@ import { Dimensions, LayoutChangeEvent, Platform, Pressable, StyleSheet, View } 
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 /**
  * Simple Tab Button
@@ -26,7 +27,7 @@ const SimpleTabButton = ({ children, onPress, onLongPress }: any) => {
  * Custom Tab Bar Button for the Center Action
  */
 const CenterActionButton = ({ onPress }: { onPress?: () => void }) => {
-  const accentColor = "#007AFF"; 
+  const accentColor = useThemeColor({}, 'accent');
   
   return (
     <View style={styles.centerButtonContainer}>
@@ -34,7 +35,7 @@ const CenterActionButton = ({ onPress }: { onPress?: () => void }) => {
         <View style={styles.centerButtonShadowWrapper}>
           <Canvas style={styles.centerButtonCanvas}>
             <Circle cx={32} cy={32} r={28} color={accentColor}>
-              <Shadow dx={0} dy={4} blur={8} color="rgba(0, 122, 255, 0.4)" />
+              <Shadow dx={0} dy={4} blur={8} color={`${accentColor}66`} />
             </Circle>
           </Canvas>
           <View style={styles.centerButtonIcon}>
@@ -50,9 +51,7 @@ const TabBarBackground = ({ surfaceColor, shadowDark, shadowLight }: any) => {
   const [width, setWidth] = useState(0);
 
   const onLayout = (event: LayoutChangeEvent) => {
-    console.log('event.nativeEvent.layout.width', event.nativeEvent.layout.width);
     const tabWidth = Dimensions.get('window').width -32;
-    console.log('tabWidth', tabWidth);
     setWidth(tabWidth);
   };
 
@@ -68,7 +67,6 @@ const TabBarBackground = ({ surfaceColor, shadowDark, shadowLight }: any) => {
             r={40}
             color={surfaceColor}
           >
-            {/* Same shadow params as GlassButton for consistency */}
             <Shadow dx={4} dy={4} blur={3} color={shadowDark} />
             <Shadow dx={-4} dy={-4} blur={3} color={shadowLight} />
           </RoundedRect>
@@ -81,7 +79,7 @@ const TabBarBackground = ({ surfaceColor, shadowDark, shadowLight }: any) => {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const theme = colorScheme ?? 'light';
-  const activeColor = "#007AFF"; 
+  const activeColor = useThemeColor({}, 'accent');
   const inactiveColor = Colors[theme].icon;
   const surfaceColor = Colors[theme].surface;
   const shadowDark = Colors[theme].shadowDark;
@@ -93,12 +91,10 @@ export default function TabLayout() {
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: inactiveColor,
         headerShown: false,
-        // tabBarShowLabel: false,
         tabBarStyle: {
           position: 'absolute',
           borderTopWidth: 0,
           backgroundColor: 'transparent',
-          // backgroundColor: 'red',
           elevation: 0,
           bottom: Platform.OS === 'ios' ? 34 : 24,
           left: 16,
@@ -155,7 +151,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          href: null,
+          // href: null,
         }}
       />
     </Tabs>

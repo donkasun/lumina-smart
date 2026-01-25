@@ -26,7 +26,10 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
   const surfaceColor = useThemeColor({}, 'surface');
   const shadowDark = useThemeColor({}, 'shadowDark');
   const shadowLight = useThemeColor({}, 'shadowLight');
-  const accentColor = "#007AFF";
+  const accentColor = useThemeColor({}, 'accent');
+  const activeTextColor = useThemeColor({}, 'activeText');
+  const inactiveIconColor = useThemeColor({}, 'icon');
+  const mainTextColor = useThemeColor({}, 'text');
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -85,7 +88,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
             <IconSymbol 
               name={getIconName(device.type) as any} 
               size={24} 
-              color={device.isOn ? accentColor : "#9BA1A6"} 
+              color={device.isOn ? accentColor : inactiveIconColor} 
             />
           </View>
           {device.isOn && (
@@ -94,8 +97,8 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
         </View>
 
         <View style={styles.footer}>
-          <ThemedText style={styles.name}>{device.name}</ThemedText>
-          <ThemedText style={styles.status}>
+          <ThemedText style={[styles.name, { color: mainTextColor }]}>{device.name}</ThemedText>
+          <ThemedText style={[styles.status, { color: device.isOn ? activeTextColor : inactiveIconColor }]}>
             {device.type === 'lock' 
               ? (device.isOn ? 'LOCKED' : 'UNLOCKED') 
               : (device.isOn ? 'ON' : 'OFF')}
@@ -146,12 +149,10 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A1A',
   },
   status: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#9BA1A6',
     textTransform: 'uppercase',
   },
 });

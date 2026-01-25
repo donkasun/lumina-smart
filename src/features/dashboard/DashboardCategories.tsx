@@ -2,8 +2,14 @@ import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Canvas, Circle, Shadow } from '@shopify/react-native-skia';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  interpolateColor,
+  useDerivedValue,
+  useSharedValue,
+  withSpring
+} from 'react-native-reanimated';
 
 interface CategoryItemProps {
   icon: string;
@@ -19,20 +25,33 @@ const CategoryItem = ({ icon, label, isActive, onPress }: CategoryItemProps) => 
   const activeColor = useThemeColor({}, 'accent');
   const inactiveColor = useThemeColor({}, 'icon');
 
+  // Animation value: 0 = Inactive (Raised), 1 = Active (Pressed)
+  const transition = useSharedValue(isActive ? 1 : 0);
+
+  useEffect(() => {
+    transition.value = withSpring(isActive ? 1 : 0, { damping: 20, stiffness: 300 });
+  }, [isActive]);
+
+  // Interpolate only inner shadows
+  const innerShadowDarkColor = useDerivedValue(() => {
+    return interpolateColor(transition.value, [0, 1], ['transparent', shadowDark]);
+  });
+  const innerShadowLightColor = useDerivedValue(() => {
+    return interpolateColor(transition.value, [0, 1], ['transparent', shadowLight]);
+  });
+
   return (
     <Pressable style={styles.itemContainer} onPress={onPress}>
       <View style={styles.iconWrapper}>
         <Canvas style={styles.canvas}>
-          <Circle cx={24} cy={24} r={22} color={surfaceColor}>
+          <Circle cx={28} cy={28} r={26} color={surfaceColor}>
+            {/* Outer Shadows (Always visible) */}
             <Shadow dx={2} dy={2} blur={3} color={shadowDark} />
             <Shadow dx={-2} dy={-2} blur={3} color={shadowLight} />
-            {/* Show inner shadows only when active (pressed effect) */}
-            {isActive && (
-              <>
-                <Shadow dx={2} dy={2} blur={3} color={`${activeColor}33`} inner />
-                <Shadow dx={-2} dy={-2} blur={3} color={shadowLight} inner />
-              </>
-            )}
+            
+            {/* Inner Shadows (Pressed/Active state transition) */}
+            <Shadow dx={2} dy={2} blur={3} color={innerShadowDarkColor} inner />
+            <Shadow dx={-2} dy={-2} blur={3} color={innerShadowLightColor} inner />
           </Circle>
         </Canvas>
         <View style={styles.icon}>
@@ -95,8 +114,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   iconWrapper: {
-    width: 48,
-    height: 48,
+    width: 58,
+    height: 58,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'visible',

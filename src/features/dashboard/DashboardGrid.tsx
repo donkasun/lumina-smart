@@ -10,8 +10,8 @@ export const DashboardGrid: React.FC = () => {
   const leftColumn = devices.filter((_, index) => index % 2 === 0);
   const rightColumn = devices.filter((_, index) => index % 2 !== 0);
 
-  const renderColumn = (columnDevices: typeof devices) => (
-    <View style={styles.column}>
+  const renderColumn = (columnDevices: typeof devices, index: number) => (
+    <View style={[styles.column, { alignItems: index % 2 === 0 ? 'flex-start' : 'flex-end' }]}>
       {columnDevices.map((device) => (
         <View key={device.id} style={styles.cardWrapper}>
           <DeviceCard 
@@ -25,8 +25,8 @@ export const DashboardGrid: React.FC = () => {
 
   return (
     <View style={styles.gridContainer}>
-      {renderColumn(leftColumn)}
-      {renderColumn(rightColumn)}
+      {renderColumn(leftColumn, 0)}
+      {renderColumn(rightColumn, 1)}
     </View>
   );
 };
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
   gridContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    // backgroundColor: 'red',
   },
   column: {
     flex: 1,
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
     // align items to start/end to ensure the gap in the middle is consistent
   },
   cardWrapper: {
-    marginBottom: 16,
+    marginBottom: 8,
     alignItems: 'center',
     // backgroundColor: 'green',
   },

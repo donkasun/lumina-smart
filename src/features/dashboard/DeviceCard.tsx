@@ -14,7 +14,7 @@ import { NeomorphButton } from '../../components/ui/NeomorphButton';
 import { Device } from '../../store/useDeviceStore';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 32 - 8 - 24) / 2; // 16px padding, 4x2 horizontal shadow offset, 16px gap
+const CARD_WIDTH = (width - 32 - 8) / 2; // 16px padding, 16px gap
 const MIN_HEIGHT = CARD_WIDTH * 0.9;
 const CARD_PADDING = 16;
 
@@ -77,13 +77,16 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
       onPress={onPress}
       style={[styles.container, animatedStyle, { height: contentHeight }]}
     >
-      <View style={[StyleSheet.absoluteFill, { width: CARD_WIDTH + 16, height: contentHeight + 16 }]}>
+      <View style={[StyleSheet.absoluteFill, { width: CARD_WIDTH , height: contentHeight ,
+        //  backgroundColor: '#22234142'
+         
+         }]}>
         <Canvas style={StyleSheet.absoluteFill}>
           <RoundedRect
             x={6}
             y={6}
-            width={CARD_WIDTH - 8}
-            height={contentHeight - 8}
+            width={CARD_WIDTH - 12}
+            height={contentHeight - 12}
             r={24}
             color={surfaceColor}
           >
@@ -174,7 +177,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
             <View style={styles.actionWrapper}>
               <NeomorphButton
                 onPress={onPress}
-                width={CARD_WIDTH  - 28}
+                width={CARD_WIDTH  - 32}
                 height={32}
                 borderRadius={16}
               >
@@ -193,6 +196,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
 const styles = StyleSheet.create({
   container: {
     width: CARD_WIDTH,
+    // backgroundColor: 'red',
   },
   cameraImageContainer: {
     position: 'absolute',
@@ -216,7 +220,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: CARD_WIDTH - 28,
+    width: CARD_WIDTH - 32,
   },
   iconWrapper: {
     width: BUTTON_WIDTH,

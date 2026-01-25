@@ -1,66 +1,69 @@
+import { Colors } from '@/constants/theme';
+import { Image } from 'expo-image';
+import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
-import { StyleSheet, Dimensions, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
-  withDelay,
-  runOnJS,
-  interpolate,
+  withTiming,
 } from 'react-native-reanimated';
-import { Logo } from './ui/Logo';
-
-const { width, height } = Dimensions.get('window');
 
 interface CustomSplashProps {
   onAnimationComplete: () => void;
 }
 
 export const CustomSplash: React.FC<CustomSplashProps> = ({ onAnimationComplete }) => {
-  const progress = useSharedValue(0); // 0 to 1
+  // Use the dark theme background specifically for the splash
+  const backgroundColor = Colors.dark.background;
+  const opacity = useSharedValue(1);
 
   useEffect(() => {
-    // Start animation sequence after 5 seconds
-    progress.value = withDelay(
-      5000,
-      withSpring(1, { damping: 15, stiffness: 90 }, (finished) => {
+    // Show splash for 2 seconds, then fade out
+    const timer = setTimeout(() => {
+      opacity.value = withTiming(0, { duration: 500 }, (finished) => {
         if (finished) {
           runOnJS(onAnimationComplete)();
         }
-      })
-    );
+      });
+    }, 3500);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  const logoStyle = useAnimatedStyle(() => {
-    // Center to top-left-ish (Header position)
-    const translateY = interpolate(progress.value, [0, 1], [0, -height * 0.35]);
-    const scale = interpolate(progress.value, [0, 1], [1.5, 0.6]);
-    const opacity = interpolate(progress.value, [0, 0.2, 1], [0, 1, 1]);
-
-    return {
-      opacity,
-      transform: [
-        { translateY },
-        { scale },
-      ],
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <Animated.View style={[styles.container, { backgroundColor }, animatedStyle]}>
+      {/* Force status bar to light (white icons) during splash */}
+      <StatusBar style="light" />
+      
       <View style={styles.center}>
-        <Animated.View style={logoStyle}>
-          <Logo size={120} />
-        </Animated.View>
+        <Image 
+          source={require('../../assets/images/splash-icon.png')}
+          style={styles.logo}
+          contentFit="contain"
+        />
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 9999,
+  },
   center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  logo: {
+    width: 160,
+    height: 160,
   },
 });

@@ -13,6 +13,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuroraBackground } from '@/src/components/background/AuroraBackground';
+import { CustomSplash } from '@/src/components/CustomSplash';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -53,11 +54,11 @@ export default function RootLayout() {
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
           
-          {/* {!splashComplete && (
+          {!splashComplete && (
             <CustomSplash onAnimationComplete={() => setSplashComplete(true)} />
-          )} */}
+          )}
           
-          <StatusBar style="auto" />
+          <StatusBar style={splashComplete ? "auto" : "light"} />
         </AuroraBackground>
       </View>
     </ThemeProvider>

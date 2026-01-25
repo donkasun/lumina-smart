@@ -2,16 +2,17 @@ import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Canvas, Circle, Shadow } from '@shopify/react-native-skia';
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 interface CategoryItemProps {
   icon: string;
   label: string;
   isActive?: boolean;
+  onPress: () => void;
 }
 
-const CategoryItem = ({ icon, label, isActive }: CategoryItemProps) => {
+const CategoryItem = ({ icon, label, isActive, onPress }: CategoryItemProps) => {
   const surfaceColor = useThemeColor({}, 'surface');
   const shadowDark = useThemeColor({}, 'shadowDark');
   const shadowLight = useThemeColor({}, 'shadowLight');
@@ -19,12 +20,13 @@ const CategoryItem = ({ icon, label, isActive }: CategoryItemProps) => {
   const inactiveColor = useThemeColor({}, 'icon');
 
   return (
-    <Pressable style={styles.itemContainer}>
+    <Pressable style={styles.itemContainer} onPress={onPress}>
       <View style={styles.iconWrapper}>
         <Canvas style={styles.canvas}>
           <Circle cx={24} cy={24} r={22} color={surfaceColor}>
             <Shadow dx={2} dy={2} blur={3} color={shadowDark} />
             <Shadow dx={-2} dy={-2} blur={3} color={shadowLight} />
+            {/* Show inner shadows only when active (pressed effect) */}
             {isActive && (
               <>
                 <Shadow dx={2} dy={2} blur={3} color={`${activeColor}33`} inner />
@@ -52,33 +54,49 @@ const CategoryItem = ({ icon, label, isActive }: CategoryItemProps) => {
 };
 
 export const DashboardCategories = () => {
+  const [activeCategory, setActiveCategory] = useState('Morning');
+
+  const categories = [
+    { id: 'Morning', label: 'Morning', icon: 'cloud.sun.fill' },
+    { id: 'Away', label: 'Away', icon: 'house.fill' },
+    { id: 'Movie', label: 'Movie', icon: 'paperplane.fill' },
+    { id: 'Sleep', label: 'Sleep', icon: 'moon.fill' },
+  ];
+
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.container}
-    >
-      <CategoryItem icon="cloud.sun.fill" label="Morning" isActive />
-      <CategoryItem icon="house.fill" label="Away" />
-      <CategoryItem icon="paperplane.fill" label="Movie" />
-      <CategoryItem icon="moon.fill" label="Sleep" />
-    </ScrollView>
+    <View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.container}
+      >
+        {categories.map((cat) => (
+          <CategoryItem
+            key={cat.id}
+            icon={cat.icon}
+            label={cat.label}
+            isActive={activeCategory === cat.id}
+            onPress={() => setActiveCategory(cat.id)}
+          />
+        ))}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
     paddingHorizontal: 16,
     gap: 12,
+    paddingVertical: 10,
   },
   itemContainer: {
     alignItems: 'center',
     gap: 4,
   },
   iconWrapper: {
-    width: 50,
-    height: 50,
+    width: 48,
+    height: 48,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'visible',

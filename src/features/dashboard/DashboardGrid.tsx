@@ -6,13 +6,14 @@ import { DeviceCard } from './DeviceCard';
 export const DashboardGrid: React.FC = () => {
   const { devices, toggleDevice } = useDeviceStore();
 
-  return (
-    <View style={styles.grid}>
-      {devices.map((device, index) => (
-        <View
-          key={device.id}
-          style={styles.cardWrapper}
-        >
+  // Split devices into two columns for masonry effect
+  const leftColumn = devices.filter((_, index) => index % 2 === 0);
+  const rightColumn = devices.filter((_, index) => index % 2 !== 0);
+
+  const renderColumn = (columnDevices: typeof devices) => (
+    <View style={styles.column}>
+      {columnDevices.map((device) => (
+        <View key={device.id} style={styles.cardWrapper}>
           <DeviceCard 
             device={device} 
             onPress={() => toggleDevice(device.id)} 
@@ -21,16 +22,29 @@ export const DashboardGrid: React.FC = () => {
       ))}
     </View>
   );
+
+  return (
+    <View style={styles.gridContainer}>
+      {renderColumn(leftColumn)}
+      {renderColumn(rightColumn)}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-  grid: {
+  gridContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingRight: 6,
+  },
+  column: {
+    flex: 1,
+    flexDirection: 'column',
+    // backgroundColor: 'blue',
+    // align items to start/end to ensure the gap in the middle is consistent
   },
   cardWrapper: {
-    marginBottom: 8,
+    marginBottom: 16,
+    alignItems: 'center',
+    // backgroundColor: 'green',
   },
 });

@@ -2,8 +2,8 @@ import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Canvas, Circle, RoundedRect, Shadow } from '@shopify/react-native-skia';
-import React, { useEffect } from 'react';
-import { Dimensions, Image, Pressable, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, Image, LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -13,10 +13,9 @@ import { NeomorphButton } from '../../components/ui/NeomorphButton';
 import { Device } from '../../store/useDeviceStore';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 32 - 16) / 2;
-const CARD_HEIGHT = CARD_WIDTH * 1.2; // Taller for lock button
-const CARD_WRAPPER_WIDTH = CARD_WIDTH + 8;
-const CARD_WRAPPER_HEIGHT = CARD_HEIGHT + 8;
+const CARD_WIDTH = (width - 32 - 8 - 24) / 2; // 16px padding, 4x2 horizontal shadow offset, 16px gap
+const MIN_HEIGHT = CARD_WIDTH * 0.9;
+const CARD_PADDING = 16;
 
 const BUTTON_WIDTH = 50;
 const BUTTON_WRAPPER_WIDTH = BUTTON_WIDTH + 8;
@@ -30,6 +29,8 @@ interface DeviceCardProps {
 
 export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
   const scale = useSharedValue(1);
+  const [contentHeight, setContentHeight] = useState(MIN_HEIGHT);
+  
   const surfaceColor = useThemeColor({}, 'surface');
   const shadowDark = useThemeColor({}, 'shadowDark');
   const shadowLight = useThemeColor({}, 'shadowLight');
@@ -49,6 +50,13 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
     transform: [{ scale: scale.value }],
   }));
 
+  const onInnerLayout = (event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    // We add a bit of safety margin or just use the measured height
+    // Since we have absolute canvases, we need the background to match
+    setContentHeight(Math.max(MIN_HEIGHT, height));
+  };
+
   const getIconName = (type: string) => {
     switch (type) {
       case 'light': return 'lightbulb.fill';
@@ -66,16 +74,16 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
   return (
     <AnimatedPressable
       onPress={onPress}
-      style={[styles.container, animatedStyle]}
+      style={[styles.container, animatedStyle, { height: contentHeight }]}
     >
-      <View style={styles.cardWrapper}>
-        <Canvas style={styles.cardCanvas}>
+      <View style={[StyleSheet.absoluteFill, { width: CARD_WIDTH + 16, height: contentHeight + 16 }]}>
+        <Canvas style={StyleSheet.absoluteFill}>
           <RoundedRect
             x={6}
             y={6}
-            width={CARD_WIDTH - 12}
-            height={isLock ? CARD_HEIGHT - 12 : CARD_WIDTH - 12}
-            r={32}
+            width={CARD_WIDTH - 8}
+            height={contentHeight - 8}
+            r={24}
             color={surfaceColor}
           >
             <Shadow dx={4} dy={4} blur={3} color={shadowDark} />
@@ -86,7 +94,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
 
       {/* Camera Background Image */}
       {isCamera && (
-        <View style={styles.cameraImageContainer}>
+        <View style={[styles.cameraImageContainer, { height: contentHeight - 8, backgroundColor: surfaceColor }]}>
           <Image 
             source={device.image}
             style={styles.cameraImage}
@@ -96,7 +104,10 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
         </View>
       )}
 
-      <View style={[styles.inner, { height: isLock ? CARD_HEIGHT : CARD_WIDTH }]}>
+      <View 
+        style={[styles.inner, { minHeight: MIN_HEIGHT }]} 
+        onLayout={onInnerLayout}
+      >
         <View style={styles.header}>
           <View style={styles.iconWrapper}>
             <Canvas style={styles.iconCanvas}>
@@ -157,17 +168,20 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
               {!isCamera && device.isOn && device.value !== undefined && device.unit && ` • ${device.value}${device.unit}`}
             </ThemedText>
           </View>
+
           {isLock && (
-            <NeomorphButton
-              onPress={onPress}
-              width={CARD_WIDTH - 40}
-              height={32}
-              borderRadius={16}
-            >
-              <ThemedText style={styles.lockButtonText}>
-                {device.isOn ? 'UNLOCK' : 'LOCK'}
-              </ThemedText>
-            </NeomorphButton>
+            <View style={styles.actionWrapper}>
+              <NeomorphButton
+                onPress={onPress}
+                width={CARD_WIDTH  - 28}
+                height={32}
+                borderRadius={16}
+              >
+                <ThemedText style={styles.lockButtonText}>
+                  {device.isOn ? 'UNLOCK' : 'LOCK'}
+                </ThemedText>
+              </NeomorphButton>
+            </View>
           )}
         </View>
       </View>
@@ -178,24 +192,12 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
 const styles = StyleSheet.create({
   container: {
     width: CARD_WIDTH,
-    // marginBottom: 16,
-  },
-  cardWrapper: {
-    position: 'absolute',
-    width: CARD_WRAPPER_WIDTH,
-    height: CARD_WRAPPER_HEIGHT,
-  },
-  cardCanvas: {
-    // ...StyleSheet.absoluteFillObject,
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
   },
   cameraImageContainer: {
     position: 'absolute',
     top: 6,
     left: 6,
-    width: CARD_WIDTH - 12,
-    height: CARD_WIDTH - 12,
+    width: CARD_WIDTH - 8,
     borderRadius: 32,
     overflow: 'hidden',
   },
@@ -205,16 +207,15 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   inner: {
-    padding: 20,
+    padding: CARD_PADDING,
     justifyContent: 'space-between',
-    // backgroundColor: 'rgba(0,255,255,0.1)',
+    gap: 12,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: CARD_WIDTH - 40,
-    // backgroundColor: 'blue',
   },
   iconWrapper: {
     width: BUTTON_WIDTH,
@@ -267,7 +268,6 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: 12,
-    // backgroundColor: 'red',
   },
   footer: {
     gap: 2,
@@ -283,6 +283,9 @@ const styles = StyleSheet.create({
     lineHeight: 12,
     fontWeight: '700',
     textTransform: 'uppercase',
+  },
+  actionWrapper: {
+    marginTop: 4,
   },
   lockButtonText: {
     fontSize: 10,

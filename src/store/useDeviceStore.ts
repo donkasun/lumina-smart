@@ -52,7 +52,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       type: 'camera',
       isOn: true,
       value: 0,
-      image: require('@/assets/images/cctv.gif'),
+      image: require('../../assets/images/cctv.gif'),
     },
     {
       id: '5',

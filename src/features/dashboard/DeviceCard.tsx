@@ -2,8 +2,9 @@ import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Canvas, Circle, RoundedRect, Shadow } from '@shopify/react-native-skia';
+import { Image } from 'expo-image';
 import React, { useEffect, useState } from 'react';
-import { Dimensions, Image, LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
+import { Dimensions, LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
     top: 6,
     left: 6,
     width: CARD_WIDTH - 8,
-    borderRadius: 32,
+    borderRadius: 24,
     overflow: 'hidden',
   },
   cameraImage: {
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: CARD_WIDTH - 40,
+    width: CARD_WIDTH - 28,
   },
   iconWrapper: {
     width: BUTTON_WIDTH,

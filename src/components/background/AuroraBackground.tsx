@@ -10,6 +10,8 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 
+import { useThemeColor } from '@/hooks/use-theme-color';
+
 const { width, height } = Dimensions.get('window');
 
 const AnimatedGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -19,6 +21,7 @@ interface AuroraBackgroundProps {
 }
 
 export const AuroraBackground: React.FC<AuroraBackgroundProps> = ({ children }) => {
+  const backgroundColor = useThemeColor({}, 'background');
   const rotation1 = useSharedValue(0);
   const rotation2 = useSharedValue(0);
   const rotation3 = useSharedValue(0);
@@ -77,8 +80,8 @@ export const AuroraBackground: React.FC<AuroraBackgroundProps> = ({ children }) 
   return (
     <View style={styles.container}>
       <View style={StyleSheet.absoluteFill}>
-        {/* Deep background color */}
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: '#050505' }]} />
+        {/* Deep background color - matched to theme background */}
+        <View style={[StyleSheet.absoluteFill, { backgroundColor }]} />
 
         <AnimatedGradient
           colors={['rgba(76, 102, 255, 0.3)', 'transparent']}

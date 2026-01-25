@@ -1,14 +1,28 @@
 import React from 'react';
 import { StyleSheet, View, Platform, ViewProps } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 
 interface GlassViewProps extends ViewProps {
   intensity?: number;
   tint?: 'light' | 'dark' | 'default';
   className?: string;
 }
+
+const styles = StyleSheet.create({
+  glass: {
+    overflow: 'hidden',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  androidGlass: {
+    overflow: 'hidden',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    elevation: 4,
+  },
+});
 
 /**
  * A glassmorphism component that handles platform differences:
@@ -54,19 +68,3 @@ export const GlassView: React.FC<GlassViewProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  glass: {
-    overflow: 'hidden',
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  androidGlass: {
-    overflow: 'hidden',
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    elevation: 4,
-  },
-});

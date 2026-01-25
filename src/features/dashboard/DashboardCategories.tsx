@@ -22,7 +22,7 @@ const CategoryItem = ({ icon, label, isActive }: CategoryItemProps) => {
     <Pressable style={styles.itemContainer}>
       <View style={styles.iconWrapper}>
         <Canvas style={styles.canvas}>
-          <Circle cx={32} cy={32} r={28} color={surfaceColor}>
+          <Circle cx={24} cy={24} r={22} color={surfaceColor}>
             <Shadow dx={2} dy={2} blur={3} color={shadowDark} />
             <Shadow dx={-2} dy={-2} blur={3} color={shadowLight} />
             {isActive && (
@@ -70,15 +70,15 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     paddingHorizontal: 16,
-    gap: 8,
+    gap: 12,
   },
   itemContainer: {
     alignItems: 'center',
-    gap: 2,
+    gap: 4,
   },
   iconWrapper: {
-    width: 64,
-    height: 64,
+    width: 50,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'visible',

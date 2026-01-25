@@ -1,18 +1,22 @@
-import React from 'react';
-import { StyleSheet, Pressable, View, Dimensions } from 'react-native';
+import { ThemedText } from '@/components/themed-text';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { Canvas, RoundedRect, Shadow } from '@shopify/react-native-skia';
+import React, { useEffect } from 'react';
+import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
+  withSpring
 } from 'react-native-reanimated';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { ThemedText } from '@/components/themed-text';
 import { Device } from '../../store/useDeviceStore';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Canvas, RoundedRect, Shadow, Circle } from '@shopify/react-native-skia';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 40 - 16) / 2;
+const CARD_WIDTH = (width - 32 - 16) / 2;
+const CARD_WRAPPER_WIDTH = CARD_WIDTH + 12;
+
+const BUTTON_WIDTH = 44;
+const BUTTON_WRAPPER_WIDTH = BUTTON_WIDTH + 12;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -31,17 +35,16 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
   const inactiveIconColor = useThemeColor({}, 'icon');
   const mainTextColor = useThemeColor({}, 'text');
 
+  // Animation for the icon circle state
+  const transition = useSharedValue(device.isOn ? 1 : 0);
+
+  useEffect(() => {
+    transition.value = withSpring(device.isOn ? 1 : 0, { damping: 20, stiffness: 300 });
+  }, [device.isOn]);
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
-
-  const handlePressIn = () => {
-    scale.value = withSpring(0.96);
-  };
-
-  const handlePressOut = () => {
-    scale.value = withSpring(1);
-  };
 
   const getIconName = (type: string) => {
     switch (type) {
@@ -56,22 +59,20 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
   return (
     <AnimatedPressable
       onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
       style={[styles.container, animatedStyle]}
     >
-      <View style={StyleSheet.absoluteFill}>
-        <Canvas style={{ flex: 1 }}>
+      <View style={styles.cardWrapper}>
+        <Canvas style={styles.cardCanvas}>
           <RoundedRect
-            x={0}
-            y={0}
+            x={6}
+            y={6}
             width={CARD_WIDTH}
             height={CARD_WIDTH}
-            r={32}
+            r={16}
             color={surfaceColor}
           >
-            <Shadow dx={8} dy={8} blur={15} color={shadowDark} />
-            <Shadow dx={-4} dy={-4} blur={15} color={shadowLight} />
+            <Shadow dx={4} dy={4} blur={3} color={shadowDark} />
+            <Shadow dx={-4} dy={-4} blur={3} color={shadowLight} />
           </RoundedRect>
         </Canvas>
       </View>
@@ -80,15 +81,22 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
         <View style={styles.header}>
           <View style={styles.iconWrapper}>
             <Canvas style={styles.iconCanvas}>
-              <Circle cx={22} cy={22} r={22} color={surfaceColor}>
-                <Shadow dx={2} dy={2} blur={4} color={shadowDark} />
-                <Shadow dx={-2} dy={-2} blur={4} color={shadowLight} />
-              </Circle>
+              <RoundedRect x={10} y={10} width={36} height={36} r={8} color={device.isOn ? accentColor : surfaceColor}>
+                {!device.isOn ? (
+                  <>
+                    <Shadow dx={4} dy={4} blur={3} color={shadowDark} />
+                    <Shadow dx={-4} dy={-4} blur={3} color={shadowLight} />
+                  </>
+                ):(
+                  <Shadow dx={0} dy={2} blur={6} color={`${accentColor}90`} />
+                )}
+              </RoundedRect>
             </Canvas>
-            <IconSymbol 
-              name={getIconName(device.type) as any} 
-              size={24} 
-              color={device.isOn ? accentColor : inactiveIconColor} 
+            <IconSymbol
+              name={getIconName(device.type) as any}
+              size={24}
+              color={device.isOn ? 'white' : inactiveIconColor}
+              style={{ marginLeft: -12, marginTop: -12 }}
             />
           </View>
           {device.isOn && (
@@ -99,8 +107,8 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, onPress }) => {
         <View style={styles.footer}>
           <ThemedText style={[styles.name, { color: mainTextColor }]}>{device.name}</ThemedText>
           <ThemedText style={[styles.status, { color: device.isOn ? activeTextColor : inactiveIconColor }]}>
-            {device.type === 'lock' 
-              ? (device.isOn ? 'LOCKED' : 'UNLOCKED') 
+            {device.type === 'lock'
+              ? (device.isOn ? 'LOCKED' : 'UNLOCKED')
               : (device.isOn ? 'ON' : 'OFF')}
             {device.isOn && device.value !== undefined && device.unit && ` • ${device.value}${device.unit}`}
           </ThemedText>
@@ -114,7 +122,16 @@ const styles = StyleSheet.create({
   container: {
     width: CARD_WIDTH,
     height: CARD_WIDTH,
-    marginBottom: 16,
+  },
+  cardWrapper: {
+    ...StyleSheet.absoluteFillObject,
+    width: CARD_WRAPPER_WIDTH,
+    height: CARD_WRAPPER_WIDTH,
+  },
+  cardCanvas: {
+    ...StyleSheet.absoluteFillObject,
+    width: CARD_WRAPPER_WIDTH,
+    height: CARD_WRAPPER_WIDTH,
   },
   inner: {
     flex: 1,
@@ -125,20 +142,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: CARD_WRAPPER_WIDTH - 40,
   },
   iconWrapper: {
-    width: 44,
-    height: 44,
+    width: BUTTON_WIDTH,
+    height: BUTTON_WIDTH,
     justifyContent: 'center',
     alignItems: 'center',
   },
   iconCanvas: {
     ...StyleSheet.absoluteFillObject,
+    width: BUTTON_WRAPPER_WIDTH,
+    height: BUTTON_WRAPPER_WIDTH,
+    marginLeft: -12,
+    marginTop: -12,
   },
   activeIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     position: 'absolute',
     top: 0,
     right: 0,

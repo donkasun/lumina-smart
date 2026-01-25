@@ -10,8 +10,6 @@ export default function DashboardScreen() {
   const textColor = useThemeColor({}, 'text');
   
   const backgroundColor = useThemeColor({}, 'background');
-  // const backgroundColor = 'red';
-  // const backgroundColor = 'gray';
 
   return (
     <ScrollView 
@@ -37,12 +35,12 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   content: {
     flexGrow: 1,
   },
   sectionHeader: {
-    paddingHorizontal: 16,
     paddingTop: 30,
     paddingBottom: 10,
   },

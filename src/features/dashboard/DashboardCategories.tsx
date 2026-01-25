@@ -105,7 +105,6 @@ export const DashboardCategories = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
     gap: 12,
     paddingVertical: 10,
   },

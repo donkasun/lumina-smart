@@ -1,15 +1,16 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { DeviceCard } from './DeviceCard';
 import { useDeviceStore } from '../../store/useDeviceStore';
+import { DeviceCard } from './DeviceCard';
 
 const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    marginLeft: -6,
+    paddingRight: 6,
     paddingTop: 20,
   },
   cardWrapper: {

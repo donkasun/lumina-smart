@@ -1,20 +1,21 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import {
-    Canvas,
-    RoundedRect,
-    Shadow,
+  Canvas,
+  RoundedRect,
+  Shadow,
 } from '@shopify/react-native-skia';
 import React from 'react';
 import { Pressable, StyleSheet, View, ViewProps } from 'react-native';
 import {
-    interpolateColor,
-    useDerivedValue,
-    useSharedValue,
-    withSpring
+  interpolateColor,
+  useDerivedValue,
+  useSharedValue,
+  withSpring
 } from 'react-native-reanimated';
 
 interface GlassButtonProps extends ViewProps {
   onPress?: () => void;
+  disabled?: boolean;
   width?: number;
   height?: number;
   borderRadius?: number;
@@ -111,7 +112,7 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
             color={baseColor}
           >
             {/* Outer shadows (depth) */}
-            <Shadow dx={10} dy={10} blur={3} color={shadowDark} />
+            <Shadow dx={6} dy={6} blur={3} color={shadowDark} />
             <Shadow dx={-6} dy={-6} blur={3} color={shadowLight} />
             
             {/* Inner shadows (recessed effect on press) */}

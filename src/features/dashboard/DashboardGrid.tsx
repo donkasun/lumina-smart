@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   cardWrapper: {
-    marginBottom: 0,
+    marginBottom: 20,
   },
 });
 

@@ -1,22 +1,31 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { DashboardGrid } from '@/src/features/dashboard/DashboardGrid';
-import { DashboardHeader } from '@/src/features/dashboard/DashboardHeader';
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
+import { DashboardHeader } from '@/src/features/dashboard/DashboardHeader';
+import { DashboardGrid } from '@/src/features/dashboard/DashboardGrid';
+import { DashboardCategories } from '@/src/features/dashboard/DashboardCategories';
+import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 export default function DashboardScreen() {
-
-  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  
   return (
     <ScrollView 
-      style={[styles.container, { backgroundColor }]} 
+      style={styles.container} 
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
       <DashboardHeader />
+      <DashboardCategories />
+      
+      <View style={styles.sectionHeader}>
+        <ThemedText style={[styles.sectionTitle, { color: textColor }]}>Devices</ThemedText>
+      </View>
+      
       <DashboardGrid />
+      
       {/* Spacer for floating tab bar */}
-      <View style={{ height: 100 }} />
+      <View style={{ height: 120 }} />
     </ScrollView>
   );
 }
@@ -27,5 +36,14 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
+  },
+  sectionHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    paddingBottom: 10,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
   },
 });

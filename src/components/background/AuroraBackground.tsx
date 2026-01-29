@@ -30,7 +30,7 @@ export const AuroraBackground: React.FC<AuroraBackgroundProps> = ({ children }) 
     rotation1.value = withRepeat(withTiming(360, { duration: 20000 }), -1, false);
     rotation2.value = withRepeat(withDelay(1000, withTiming(360, { duration: 25000 })), -1, false);
     rotation3.value = withRepeat(withDelay(2000, withTiming(360, { duration: 30000 })), -1, false);
-  }, []);
+  }, [rotation1, rotation2, rotation3]);
 
   const animatedStyle1 = useAnimatedStyle(() => {
     const scale = interpolate(

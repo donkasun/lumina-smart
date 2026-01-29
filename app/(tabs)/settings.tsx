@@ -1,12 +1,10 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
 
 export default function SettingsScreen() {
-  const backgroundColor = useThemeColor({}, 'background');
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <View style={styles.container}>
       <ThemedText type="title">Settings</ThemedText>
       <ThemedText style={styles.subtitle}>Coming Soon</ThemedText>
     </View>

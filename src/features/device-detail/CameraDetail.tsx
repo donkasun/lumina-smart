@@ -18,7 +18,7 @@ const MOCK_EVENTS: CameraEvent[] = [
   { type: 'Vehicle Detected', time: '1 hour ago', thumbnail: null },
 ];
 
-export interface ActionButtonProps {
+interface ActionButtonProps {
   icon: string;
   label: string;
   bg: string;

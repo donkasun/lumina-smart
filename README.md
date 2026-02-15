@@ -1,50 +1,58 @@
-# Welcome to your Expo app 👋
+# Lumina Smart
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A smart home concept app built with React Native + Expo — a personal hobby project exploring advanced mobile UI patterns, custom animation systems, and component architecture.
 
-## Get started
+<p align="center">
+  <img src="assets/screenshots/Home.png" width="200" alt="Hub Dashboard" />
+  <img src="assets/screenshots/bulb.png" width="200" alt="Light Device Detail" />
+  <img src="assets/screenshots/thermostat.png" width="200" alt="Thermostat Detail" />
+</p>
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- **React Native + Expo** — Expo Router with file-based routing
+- **TypeScript** — strict throughout
+- **Zustand** — lightweight global state (`useDeviceStore`, `useConnectionStore`)
+- **React Native Reanimated + Gesture Handler** — all animations and gesture interactions
+- **React Native SVG** — custom circular sliders and colour pickers (no third-party UI libs)
+- **expo-av** — audio playback for in-app music player
+- **expo-linear-gradient + expo-symbols** — gradients and SF Symbols (iOS)
+- **Neumorphic / glassmorphic design system** — custom theme tokens
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## Architecture Highlights
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **File-based routing** via Expo Router (`app/(tabs)/`, `app/device/[id]`)
+- **Custom design system** with `surface`, `accent`, `text`, `icon`, `shadowDark`, `shadowLight` theme tokens — consistent across light/dark mode
+- **Per-device-type detail screens** (`light`, `thermostat`, `camera`, `lock`, `ac`, `solar`) in `src/features/device-detail/` — each with its own control set
+- **Fully custom SVG components** — circular thermostat dial, colour temperature slider, and colour picker built from scratch with `react-native-svg`
+- **Platform-aware shadows** — iOS `shadowColor/shadowOffset` props vs Android `elevation`, abstracted via `Shadows` constants
+- **Animated toggle** — overdamped spring translation (no overshoot) with a separate bounce scale pulse on arrival
+- **Music player** — `expo-av` with track queue, auto-advance on completion, and back-skip logic (restart if >3s in, else previous track)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## Screens
 
-When you're ready, run:
+| Screen | Description |
+|--------|-------------|
+| **Hub** | Dashboard with scene modes, live camera carousel, categorised device grid, music player card, weather pill |
+| **Device Detail** | Per-type controls — brightness slider, colour temp bar, colour palette, thermostat dial, schedule list |
+| **Usage** | Energy and usage analytics view |
+| **Flows** | Automation flows tab |
+| **Settings** | App settings |
+
+---
+
+## Getting Started
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+> **iOS recommended** — uses SF Symbols via `expo-symbols`. Android falls back to Material Icons.
+> **Mock data only** — no backend or real device integration.

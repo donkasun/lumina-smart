@@ -1,7 +1,7 @@
 {
   "name": "lumina-smart",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A smart home concept app built with React Native + Expo — custom animations, device UIs, and design system showcase.",
   "license": "MIT",
   "repository": {

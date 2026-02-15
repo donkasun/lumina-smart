@@ -3,7 +3,7 @@ import { DashboardCategories } from '@/src/features/dashboard/DashboardCategorie
 import { DashboardGrid } from '@/src/features/dashboard/DashboardGrid';
 import { DashboardHeader } from '@/src/features/dashboard/DashboardHeader';
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /** Match tab bar height in (tabs)/_layout so content clears the bar. */

@@ -225,7 +225,7 @@ export default function TabLayout() {
           >
             <View style={styles.sheetHandle} />
             <Text style={[styles.sheetTitle, { color: textColor }]}>Add New Device</Text>
-            <Text style={[styles.sheetSubtitle, { color: subtextColor }]}>Bottom sheet placeholder. Device setup flow will be added next.</Text>
+            <Text style={[styles.sheetSubtitle, { color: subtextColor }]}>Device setup flow coming in a future update.</Text>
           </Pressable>
         </Pressable>
       </Modal>

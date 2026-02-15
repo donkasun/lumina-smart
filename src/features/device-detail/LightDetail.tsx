@@ -1,10 +1,8 @@
 import React, { useCallback } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { Circle, Defs, RadialGradient, Stop, Svg } from 'react-native-svg';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Typography } from '@/constants/theme';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { Device, useDeviceStore } from '@/src/store/useDeviceStore';
 import { Ionicons } from '@expo/vector-icons';
 import { haptics } from '@/src/utils/haptics';
@@ -49,6 +47,7 @@ export const LightDetail: React.FC<{ device: Device }> = ({ device }) => {
     } else {
       glowBaseAlpha.value = 0.6;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- glowBaseAlpha is a shared value, not a dep
   }, [device.isOn, device.color, device.value]);
 
   const glowContainerStyle = useAnimatedStyle(() => ({

@@ -21,6 +21,8 @@ export const FAN_LABELS = ['Auto', 'Low', 'Med', 'High'];
 
 const THUMB_SIZE = 20;
 const TRACK_HEIGHT = 8;
+/** Min touch target; track/thumb stay centered, so this only expands hit area */
+const TOUCH_TARGET_HEIGHT = 44;
 const SNAP_DURATION_MS = 280;
 const SEGMENT_COUNT = FAN_LABELS.length - 1; // 3 segments → 4 positions (0–3)
 
@@ -153,7 +155,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.bold,
   },
   trackContainer: {
-    height: THUMB_SIZE,
+    height: TOUCH_TARGET_HEIGHT,
     justifyContent: 'center',
   },
   track: {

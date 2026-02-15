@@ -240,7 +240,9 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
     android: { elevation: 6 },
   }) ?? {};
 
-  const isHeating = targetValue > 21;
+  // HEATING = room temp below setpoint (heating up); COOLING = room temp above setpoint (cooling down)
+  const isHeating =
+    displayValue < value || (displayValue === value && targetValue > 21);
   const borderColor = useThemeColor({}, 'border');
 
   return (
@@ -401,9 +403,10 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   divider: {
-    height: 1,
+    height: 3,
     alignSelf: 'stretch',
     marginVertical: 4,
+    marginHorizontal: 16,
     opacity: 0.5,
   },
   tempRow: {

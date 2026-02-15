@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Shadows } from '@/constants/shadows';
 import { Typography } from '@/constants/theme';
@@ -17,7 +17,6 @@ export interface ModeButtonProps {
 export const ModeButton: React.FC<ModeButtonProps> = ({ icon, label, isActive, onPress }) => {
   const surfaceColor = useThemeColor({}, 'surface');
   const textColor = useThemeColor({}, 'text');
-  const borderColor = useThemeColor({}, 'border');
   const scale = useSharedValue(1);
 
   const animStyle = useAnimatedStyle(() => ({
@@ -28,7 +27,7 @@ export const ModeButton: React.FC<ModeButtonProps> = ({ icon, label, isActive, o
     scale.value = withTiming(0.95, { duration: 120 });
   };
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15 });
+    scale.value = withTiming(1, { duration: 150 });
   };
 
   return (
@@ -43,8 +42,7 @@ export const ModeButton: React.FC<ModeButtonProps> = ({ icon, label, isActive, o
             ? { backgroundColor: PRIMARY, ...(Shadows.primaryUnderglow as object) }
             : {
                 backgroundColor: surfaceColor,
-                borderWidth: 1,
-                borderColor,
+                ...(Shadows.card as object),
               },
         ]}
       >

@@ -1,5 +1,10 @@
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Typography } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { GlassView } from '@/src/components/ui/GlassView';
+import { haptics } from '@/src/utils/haptics';
 import React, { useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   runOnJS,
@@ -7,13 +12,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { Svg, Path } from 'react-native-svg';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { GlassView } from '@/src/components/ui/GlassView';
-import { Shadows } from '@/constants/shadows';
-import { Typography } from '@/constants/theme';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { haptics } from '@/src/utils/haptics';
+import { Path, Svg } from 'react-native-svg';
 
 const DIAL_SIZE = 280;
 const CENTER = DIAL_SIZE / 2;
@@ -201,43 +200,46 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
     <View style={styles.container}>
       <GestureDetector gesture={composed}>
         <View style={styles.dialWrapper}>
-          <Svg
-            width={DIAL_SIZE}
-            height={DIAL_SIZE}
-            viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}
-          >
-            {/* Cool arc (left, blue) */}
-            <Path
-              d={COOL_PATH}
-              stroke={COOL_COLOR}
-              strokeWidth={STROKE_WIDTH}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-              opacity={0.95}
-            />
-            {/* Warm arc (right, orange) */}
-            <Path
-              d={WARM_PATH}
-              stroke={WARM_COLOR}
-              strokeWidth={STROKE_WIDTH}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-              opacity={0.95}
-            />
-          </Svg>
-          {/* Thumb (animated, follows currentAngle) */}
+          <View style={styles.arcContainer}>
+            <Svg
+              width={DIAL_SIZE}
+              height={DIAL_SIZE}
+              viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}
+            >
+              {/* Cool arc (left, blue) */}
+              <Path
+                d={COOL_PATH}
+                stroke={COOL_COLOR}
+                strokeWidth={STROKE_WIDTH}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+                opacity={0.95}
+              />
+              {/* Warm arc (right, orange) */}
+              <Path
+                d={WARM_PATH}
+                stroke={WARM_COLOR}
+                strokeWidth={STROKE_WIDTH}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+                opacity={0.95}
+              />
+            </Svg>
+          </View>
+          {/* Thumb (animated, follows currentAngle) — no shadow to avoid casting onto inner circle */}
           <Animated.View
             style={[styles.thumbOuter, thumbStyle]}
             pointerEvents="none"
           >
-            <View style={[styles.thumb, { borderColor: primaryColor }, Shadows.card as object]} />
+            <View style={[styles.thumb, { borderColor: primaryColor }]} />
           </Animated.View>
 
-          {/* Inner frosted disk */}
-          <View style={[styles.frostedDisk, diskShadow as object]}>
-            <GlassView style={styles.diskGlass}>
+          {/* Inner circle: shadow wrapper so shadow isn't clipped; inner clips content */}
+          <View style={[styles.diskShadowWrapper, diskShadow as object]}>
+            <View style={styles.frostedDisk}>
+              <GlassView style={styles.diskGlass}>
               <Text style={[styles.targetLabel, { color: primaryColor }]}>
                 TARGET {value}°
               </Text>
@@ -261,6 +263,7 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
                 </Text>
               </View>
             </GlassView>
+            </View>
           </View>
         </View>
       </GestureDetector>
@@ -278,6 +281,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  arcContainer: {
+    ...(Platform.OS === 'ios'
+      ? { shadowOpacity: 0, shadowRadius: 0, shadowOffset: { width: 0, height: 0 } }
+      : { elevation: 0 }),
+  },
   thumbOuter: {
     position: 'absolute',
     left: 0,
@@ -294,10 +302,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
   },
-  frostedDisk: {
+  diskShadowWrapper: {
     position: 'absolute',
     width: 192,
     height: 192,
+    borderRadius: 96,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  frostedDisk: {
+    width: '100%',
+    height: '100%',
     borderRadius: 96,
     overflow: 'hidden',
   },

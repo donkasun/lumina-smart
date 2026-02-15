@@ -24,11 +24,13 @@ const STROKE_WIDTH = 16;
 const WARM_COLOR = '#FF7D54';
 const COOL_COLOR = '#3B82F6';
 
-// Arc symmetric around top (12 o'clock): -240° (8 o'clock) to +60° (4 o'clock), 300° total, 60° gap at bottom
+// Arc symmetric around top (12 o'clock): -240° (11 o'clock) to +60° (1 o'clock), 300° total, 60° gap at bottom
+// atan2 returns (-180, 180]. Cool end -240° = 120° in atan2; warm end 60° = 60°. So (60, 180] is the left/cool side.
 const ARC_START = -240;
 const ARC_END = 60;
 const ARC_SWEEP = ARC_END - ARC_START; // 300
 const ARC_HALF = 150; // each segment 150°
+const ATAN2_COOL_END = 120; // 11 o'clock = -240° = 120° in atan2
 
 const polarToCartesian = (cx: number, cy: number, r: number, angleDeg: number) => {
   const rad = (angleDeg * Math.PI) / 180;
@@ -111,9 +113,19 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
       'worklet';
       const dx = e.x - CENTER;
       const dy = e.y - CENTER;
-      let angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-      if (angle < ARC_START) angle = ARC_START;
-      if (angle > ARC_END) angle = ARC_END;
+      let raw = (Math.atan2(dy, dx) * 180) / Math.PI;
+      let angle = raw;
+      if (raw >= ATAN2_COOL_END && raw <= 180) {
+        // Cool side (11 o'clock to 9 o'clock)
+        angle = ARC_START + (raw - ATAN2_COOL_END);
+      } else if (raw > 60 && raw < ATAN2_COOL_END) {
+        // Gap (1 o'clock to 11 o'clock): stay on current side, don't jump to the other end
+        const onWarmSide = currentAngle.value >= -90;
+        angle = onWarmSide ? ARC_END : ARC_START;
+      } else {
+        // Main arc (9 o'clock to 1 o'clock): -180 to 60
+        angle = Math.max(ARC_START, Math.min(ARC_END, raw));
+      }
       currentAngle.value = angle;
       const normalized = (angle - ARC_START) / ARC_SWEEP;
       const clamped = Math.max(0, Math.min(1, normalized));
@@ -138,9 +150,13 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
       const y = e.y;
       const dx = x - CENTER;
       const dy = y - CENTER;
-      let angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-      if (angle < ARC_START) angle = ARC_START;
-      if (angle > ARC_END) angle = ARC_END;
+      let raw = (Math.atan2(dy, dx) * 180) / Math.PI;
+      let angle = raw;
+      if (raw > 60 && raw <= 180) {
+        angle = ARC_START + (raw - ATAN2_COOL_END);
+      } else {
+        angle = Math.max(ARC_START, Math.min(ARC_END, raw));
+      }
       const normalized = (angle - ARC_START) / ARC_SWEEP;
       const clamped = Math.max(0, Math.min(1, normalized));
       const targetValue = Math.round(min + clamped * (max - min));

@@ -1,6 +1,17 @@
 import { SymbolView, SymbolViewProps, SymbolWeight } from 'expo-symbols';
 import { StyleProp, ViewStyle } from 'react-native';
 
+/** Map Material-style icon names (used in app) to SF Symbol names for iOS. */
+const IOS_SYMBOL_MAP: Partial<Record<string, SymbolViewProps['name']>> = {
+  'local_fire_department': 'flame.fill',
+  'ac_unit': 'snowflake',
+  'autorenew': 'arrow.triangle.2.circlepath',
+  'eco': 'leaf.fill',
+  'mode_fan': 'fanblades.fill',
+  'humidity_mid': 'humidity',
+  'calendar_today': 'calendar',
+};
+
 export function IconSymbol({
   name,
   size = 24,
@@ -14,12 +25,13 @@ export function IconSymbol({
   style?: StyleProp<ViewStyle>;
   weight?: SymbolWeight;
 }) {
+  const resolvedName = (IOS_SYMBOL_MAP[name as string] ?? name) as SymbolViewProps['name'];
   return (
     <SymbolView
       weight={weight}
       tintColor={color}
       resizeMode="scaleAspectFit"
-      name={name}
+      name={resolvedName}
       style={[
         {
           width: size,

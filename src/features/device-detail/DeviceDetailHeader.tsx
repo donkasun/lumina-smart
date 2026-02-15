@@ -1,13 +1,10 @@
-import React from 'react';
-import { View, Text, StyleSheet, Dimensions, Platform } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
-import { SharedDeviceIcon } from '@/src/components/ui/SharedDeviceIcon';
-import { Device } from '@/src/store/useDeviceStore';
 import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
-
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = width - 40;
+import { SharedDeviceIcon } from '@/src/components/ui/SharedDeviceIcon';
+import { Device } from '@/src/store/useDeviceStore';
+import React from 'react';
+import { Platform, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 interface DeviceDetailHeaderProps {
   device: Device;

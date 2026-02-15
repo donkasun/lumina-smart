@@ -1,5 +1,7 @@
 # Lumina Smart
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A smart home concept app built with React Native + Expo — a personal hobby project exploring advanced mobile UI patterns, custom animation systems, and component architecture.
 
 <p align="center">
@@ -56,3 +58,9 @@ npx expo start
 
 > **iOS recommended** — uses SF Symbols via `expo-symbols`. Android falls back to Material Icons.
 > **Mock data only** — no backend or real device integration.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE) for details.

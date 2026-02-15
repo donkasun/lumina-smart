@@ -1,17 +1,15 @@
-import React from 'react';
-import { View, Text, StyleSheet, Dimensions, Platform } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  runOnJS,
-} from 'react-native-reanimated';
-import { Svg, Path } from 'react-native-svg';
 import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { haptics } from '@/src/utils/haptics';
-import { useRef } from 'react';
+import React, { useRef } from 'react';
+import { Dimensions, Platform, StyleSheet, Text, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
+import { Path, Svg } from 'react-native-svg';
 
 interface CircularSliderProps {
   min: number;

@@ -35,7 +35,6 @@ const parseTrackInfo = (filename: string) => {
 };
 
 interface ControlButtonProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon?: any;
   color?: string;
   size?: number;
@@ -68,16 +67,14 @@ const ControlButton: React.FC<ControlButtonProps> = ({ icon, color, size = 24, o
   );
 };
 
-export const MusicPlayerCard: React.FC = memo(() => {
+export const MusicPlayerCard: React.FC = memo(function MusicPlayerCard() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [position, setPosition] = useState(0);
   const soundRef = useRef<Audio.Sound | null>(null);
 
-  const iconColor = useThemeColor({}, 'icon');
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'subtext');
-  const accentColor = useThemeColor({}, 'accent');
 
   const currentTrack = TRACKS[currentTrackIndex];
   const { title, artist } = parseTrackInfo(currentTrack.filename);
@@ -116,6 +113,7 @@ export const MusicPlayerCard: React.FC = memo(() => {
         soundRef.current.unloadAsync();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally only re-run on track change
   }, [currentTrackIndex]);
 
   const handlePlayPause = async () => {

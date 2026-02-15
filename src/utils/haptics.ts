@@ -30,8 +30,7 @@ class HapticFeedback {
     try {
       await Haptics.selectionAsync();
     } catch (error) {
-      // Silently fail on unsupported devices
-      console.warn('Haptics not supported', error);
+      if (__DEV__) console.warn('Haptics not supported', error);
     }
   }
 
@@ -45,7 +44,7 @@ class HapticFeedback {
         Haptics.NotificationFeedbackType.Success
       );
     } catch (error) {
-      console.warn('Haptics not supported', error);
+      if (__DEV__) console.warn('Haptics not supported', error);
     }
   }
 
@@ -59,7 +58,7 @@ class HapticFeedback {
         Haptics.NotificationFeedbackType.Warning
       );
     } catch (error) {
-      console.warn('Haptics not supported', error);
+      if (__DEV__) console.warn('Haptics not supported', error);
     }
   }
 
@@ -73,7 +72,7 @@ class HapticFeedback {
         Haptics.NotificationFeedbackType.Error
       );
     } catch (error) {
-      console.warn('Haptics not supported', error);
+      if (__DEV__) console.warn('Haptics not supported', error);
     }
   }
 
@@ -85,7 +84,7 @@ class HapticFeedback {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch (error) {
-      console.warn('Haptics not supported', error);
+      if (__DEV__) console.warn('Haptics not supported', error);
     }
   }
 
@@ -97,7 +96,7 @@ class HapticFeedback {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch (error) {
-      console.warn('Haptics not supported', error);
+      if (__DEV__) console.warn('Haptics not supported', error);
     }
   }
 
@@ -109,7 +108,7 @@ class HapticFeedback {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     } catch (error) {
-      console.warn('Haptics not supported', error);
+      if (__DEV__) console.warn('Haptics not supported', error);
     }
   }
 
@@ -126,7 +125,7 @@ class HapticFeedback {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
     } catch (error) {
-      console.warn('Haptics not supported', error);
+      if (__DEV__) console.warn('Haptics not supported', error);
     }
   }
 
@@ -143,7 +142,7 @@ class HapticFeedback {
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
     } catch (error) {
-      console.warn('Haptics not supported', error);
+      if (__DEV__) console.warn('Haptics not supported', error);
     }
   }
 }

@@ -1,14 +1,17 @@
-import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Shadows } from '@/constants/shadows';
+import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { Canvas, Circle, Shadow } from '@shopify/react-native-skia';
-import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import {
-  interpolateColor,
-  useDerivedValue,
+import { haptics } from '@/src/utils/haptics';
+import React, { memo, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
   useSharedValue,
-  withSpring
+  withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import { Scenario, useDeviceStore } from '../../store/useDeviceStore';
 
@@ -19,59 +22,56 @@ interface CategoryItemProps {
   onPress: () => void;
 }
 
-const CategoryItem = ({ icon, label, isActive, onPress }: CategoryItemProps) => {
+const CategoryItem = memo(({ icon, label, isActive, onPress }: CategoryItemProps) => {
+  const accentColor = useThemeColor({}, 'accent');
   const surfaceColor = useThemeColor({}, 'surface');
-  const shadowDark = useThemeColor({}, 'shadowDark');
-  const shadowLight = useThemeColor({}, 'shadowLight');
-  const activeColor = useThemeColor({}, 'accent');
-  const inactiveColor = useThemeColor({}, 'icon');
+  const borderColor = useThemeColor({}, 'border');
+  const iconColor = useThemeColor({}, 'icon');
+  const subtextColor = useThemeColor({}, 'subtext');
 
-  // Animation value: 0 = Inactive (Raised), 1 = Active (Pressed)
-  const transition = useSharedValue(isActive ? 1 : 0);
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
-  useEffect(() => {
-    transition.value = withSpring(isActive ? 1 : 0, { damping: 20, stiffness: 300 });
-  }, [isActive]);
-
-  // Interpolate only inner shadows
-  const innerShadowDarkColor = useDerivedValue(() => {
-    return interpolateColor(transition.value, [0, 1], ['transparent', `${activeColor}54`]);
-  });
-  const innerShadowLightColor = useDerivedValue(() => {
-    return interpolateColor(transition.value, [0, 1], ['transparent', shadowLight]);
-  });
+  const tap = Gesture.Tap()
+    .onBegin(() => {
+      scale.value = withTiming(0.92, { duration: 100 });
+    })
+    .onFinalize(() => {
+      scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+    })
+    .onEnd(() => {
+      runOnJS(haptics.tap)();
+      runOnJS(onPress)();
+    });
 
   return (
-    <Pressable style={styles.itemContainer} onPress={onPress}>
-      <View style={styles.iconWrapper}>
-        <Canvas style={styles.canvas}>
-          <Circle cx={28} cy={28} r={26} color={surfaceColor}>
-            {/* Outer Shadows (Always visible) */}
-            <Shadow dx={2} dy={2} blur={3} color={shadowDark} />
-            <Shadow dx={-2} dy={-2} blur={3} color={shadowLight} />
-
-            {/* Inner Shadows (Pressed/Active state transition) */}
-            <Shadow dx={2} dy={2} blur={3} color={innerShadowDarkColor} inner />
-            <Shadow dx={-2} dy={-2} blur={3} color={innerShadowLightColor} inner />
-          </Circle>
-        </Canvas>
-        <View style={styles.icon}>
-          <IconSymbol
-            name={icon as any}
-            size={24}
-            color={isActive ? activeColor : inactiveColor}
-          />
-        </View>
-      </View>
-      <ThemedText style={[
-        styles.label,
-        { color: isActive ? activeColor : inactiveColor }
-      ]}>
-        {label}
-      </ThemedText>
-    </Pressable>
+    <GestureDetector gesture={tap}>
+      <Animated.View style={[styles.itemContainer, animatedStyle]}>
+        {isActive ? (
+          <View style={[styles.circle, { backgroundColor: accentColor }, Shadows.heroUnderglow]}>
+            <IconSymbol name={icon as any} size={28} color="#FFFFFF" />
+          </View>
+        ) : (
+          <View style={[styles.circle, { backgroundColor: surfaceColor, borderWidth: 1, borderColor }, Shadows.card]}>
+            <IconSymbol name={icon as any} size={28} color={iconColor} />
+          </View>
+        )}
+        <Text style={[
+          styles.label,
+          isActive
+            ? { color: accentColor, fontFamily: Typography.bold }
+            : { color: subtextColor, fontFamily: Typography.medium },
+        ]}>
+          {label}
+        </Text>
+      </Animated.View>
+    </GestureDetector>
   );
-};
+});
+
+CategoryItem.displayName = 'CategoryItem';
 
 export const DashboardCategories = () => {
   const [activeCategory, setActiveCategory] = useState<Scenario>('Morning');
@@ -79,10 +79,10 @@ export const DashboardCategories = () => {
 
   const categories: { id: Scenario; label: string; icon: string }[] = [
     { id: 'Morning', label: 'Morning', icon: 'cloud.sun.fill' },
-    { id: 'Away', label: 'Away', icon: 'car.fill' },
-    { id: 'Work', label: 'Work', icon: 'briefcase.fill' },
-    { id: 'Movie', label: 'Movie', icon: 'tv.fill' },
-    { id: 'Sleep', label: 'Sleep', icon: 'moon.fill' },
+    { id: 'Away',    label: 'Away',    icon: 'car.fill' },
+    { id: 'Work',    label: 'Work',    icon: 'briefcase.fill' },
+    { id: 'Movie',   label: 'Movie',   icon: 'tv.fill' },
+    { id: 'Sleep',   label: 'Sleep',   icon: 'moon.fill' },
   ];
 
   const handlePress = (id: Scenario) => {
@@ -91,11 +91,12 @@ export const DashboardCategories = () => {
   };
 
   return (
-    <View style={styles.scrollWrapper}>
+    <View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.container}
+        style={styles.scrollWrapper}
       >
         {categories.map((cat) => (
           <CategoryItem
@@ -113,32 +114,25 @@ export const DashboardCategories = () => {
 
 const styles = StyleSheet.create({
   scrollWrapper: {
-    height: 90,
+    padding: 16,
   },
   container: {
-    gap: 12,
-    alignItems: 'center',
+    gap: 16,
+    paddingRight: 16,
   },
   itemContainer: {
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
-  iconWrapper: {
-    width: 58,
-    height: 58,
+  circle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'visible',
-  },
-  canvas: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  icon: {
-    zIndex: 1,
   },
   label: {
     fontSize: 12,
     lineHeight: 14,
-    fontWeight: '700',
   },
 });

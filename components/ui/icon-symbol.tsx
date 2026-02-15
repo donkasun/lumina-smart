@@ -6,7 +6,8 @@ import { ComponentProps } from 'react';
 import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native';
 
 type IconMapping = Record<SymbolViewProps['name'], ComponentProps<typeof MaterialIcons>['name']>;
-type IconSymbolName = keyof typeof MAPPING;
+// Allow both SF Symbol names and our custom Material Icon aliases
+type IconSymbolName = keyof typeof MAPPING | string;
 
 /**
  * Add your SF Symbols to Material Icons mappings here.
@@ -30,7 +31,41 @@ const MAPPING = {
   'briefcase.fill': 'work',
   'tv.fill': 'tv',
   'video.fill': 'videocam',
-} as IconMapping;
+  'plus': 'add',
+  'lightbulb.fill': 'lightbulb',
+  'thermometer.medium': 'thermostat',
+  'lock.fill': 'lock',
+  'lock.open.fill': 'lock-open',
+  'wind': 'air',
+  'slider.horizontal.3': 'tune',
+  'chevron.left': 'chevron-left',
+  'music.note': 'music-note',
+  'skip.backward.fill': 'skip-previous',
+  'pause.circle.fill': 'pause-circle',
+  'play.circle.fill': 'play-circle',
+  'skip.forward.fill': 'skip-next',
+  'power_settings_new': 'power',
+  'light_mode': 'light-mode',
+  'local_fire_department': 'local-fire-department',
+  'ac_unit': 'ac-unit',
+  'autorenew': 'autorenew',
+  'eco': 'eco',
+  'mode_fan': 'mode-fan',
+  'humidity_mid': 'water-drop',
+  'schedule': 'schedule',
+  'mic': 'mic',
+  'photo_camera': 'photo-camera',
+  'notification_important': 'notification-important',
+  'verified': 'verified',
+  'solar_power': 'solar-power',
+  'grid_goldenratio': 'grid-view',
+  'calendar_today': 'calendar-today',
+  'palette': 'palette',
+  'wb_twilight': 'wb-twilight',
+  'dark_mode': 'dark-mode',
+  'arrow_back_ios_new': 'arrow-back-ios',
+  'more_vert': 'more-vert',
+} as unknown as IconMapping;
 
 /**
  * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.
@@ -49,5 +84,5 @@ export function IconSymbol({
   style?: StyleProp<TextStyle>;
   weight?: SymbolWeight;
 }) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
+  return <MaterialIcons color={color} size={size} name={(MAPPING as any)[name]} style={style} />;
 }

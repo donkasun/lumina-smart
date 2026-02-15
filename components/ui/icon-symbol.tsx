@@ -50,7 +50,7 @@ const MAPPING = {
   'ac_unit': 'ac-unit',
   'autorenew': 'autorenew',
   'eco': 'eco',
-  'mode_fan': 'mode-fan',
+  'mode_fan': 'air',
   'humidity_mid': 'water-drop',
   'schedule': 'schedule',
   'mic': 'mic',

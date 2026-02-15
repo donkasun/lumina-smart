@@ -96,9 +96,6 @@ const CameraSlide = memo(function CameraSlide({
         colors={['rgba(0,0,0,0.30)', 'transparent', 'rgba(0,0,0,0.70)']}
         style={StyleSheet.absoluteFill}
       />
-      <View style={styles.camBadge}>
-        <IconSymbol name="video.fill" size={20} color="#FFF" />
-      </View>
       <View style={styles.recBadge}>
         <Animated.View style={[styles.recDot, pulseDotStyle]} />
         <Text style={styles.recText}>REC</Text>
@@ -255,17 +252,6 @@ const styles = StyleSheet.create({
     height: SLIDE_HEIGHT,
     borderRadius: 24,
     overflow: 'hidden',
-  },
-  camBadge: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: '#FF7D54',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   recBadge: {
     position: 'absolute',

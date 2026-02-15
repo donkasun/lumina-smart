@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
-import { View, Text, StyleSheet, ImageBackground, StyleProp, ViewStyle } from 'react-native';
-import { GlassView } from '@/src/components/ui/GlassView';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { GlassView } from '@/src/components/ui/GlassView';
+import React, { memo } from 'react';
+import { ImageBackground, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 export interface CameraEvent {
   type: string;
@@ -43,6 +43,8 @@ export const EventRow: React.FC<EventRowProps> = memo(({ event, style }) => {
     </GlassView>
   );
 });
+
+EventRow.displayName = 'EventRow';
 
 const styles = StyleSheet.create({
   row: {

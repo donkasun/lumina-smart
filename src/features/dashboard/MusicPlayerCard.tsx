@@ -1,9 +1,11 @@
+import { Ionicons } from '@expo/vector-icons';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { Audio, AVPlaybackStatus } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -12,17 +14,36 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-const TRACK = { title: 'Midnight Dreams', artist: 'Luna Waves' };
+const TRACKS = [
+  {
+    file: require('../../../assets/audio/Call me crazy - Patrick Patrikios.mp3'),
+    filename: 'Call me crazy - Patrick Patrikios.mp3',
+  },
+  {
+    file: require('../../../assets/audio/F16 - The Grey Room _ Golden Palms.mp3'),
+    filename: 'F16 - The Grey Room _ Golden Palms.mp3',
+  },
+  {
+    file: require('../../../assets/audio/Intergalactic - Alex Jones _ Xander Jones.mp3'),
+    filename: 'Intergalactic - Alex Jones _ Xander Jones.mp3',
+  },
+];
+
+const parseTrackInfo = (filename: string) => {
+  const [title, artist] = filename.replace('.mp3', '').split(' - ');
+  return { title, artist };
+};
 
 interface ControlButtonProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: any;
-  color: string;
+  icon?: any;
+  color?: string;
   size?: number;
   onPress?: () => void;
+  children?: React.ReactNode;
 }
 
-const ControlButton: React.FC<ControlButtonProps> = ({ icon, color, size = 24, onPress }) => {
+const ControlButton: React.FC<ControlButtonProps> = ({ icon, color, size = 24, onPress, children }) => {
   const scale = useSharedValue(1);
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -41,18 +62,86 @@ const ControlButton: React.FC<ControlButtonProps> = ({ icon, color, size = 24, o
       activeOpacity={1}
     >
       <Animated.View style={animStyle}>
-        <IconSymbol name={icon} size={size} color={color} />
+        {children ?? <IconSymbol name={icon} size={size} color={color!} />}
       </Animated.View>
     </TouchableOpacity>
   );
 };
 
 export const MusicPlayerCard: React.FC = memo(() => {
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [position, setPosition] = useState(0);
+  const soundRef = useRef<Audio.Sound | null>(null);
+
   const iconColor = useThemeColor({}, 'icon');
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'subtext');
   const accentColor = useThemeColor({}, 'accent');
+
+  const currentTrack = TRACKS[currentTrackIndex];
+  const { title, artist } = parseTrackInfo(currentTrack.filename);
+
+  const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+    if (status.isLoaded) {
+      setPosition(status.positionMillis);
+      setIsPlaying(status.isPlaying);
+      if (status.didJustFinish) {
+        setIsPlaying(true);
+        setCurrentTrackIndex((prev) => (prev + 1) % TRACKS.length);
+      }
+    }
+  };
+
+  const loadAndPlayTrack = async (index: number, shouldPlay: boolean) => {
+    try {
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync();
+      }
+      const { sound } = await Audio.Sound.createAsync(
+        TRACKS[index].file,
+        { shouldPlay },
+        onPlaybackStatusUpdate
+      );
+      soundRef.current = sound;
+    } catch (error) {
+      console.error('Error loading track:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadAndPlayTrack(currentTrackIndex, isPlaying);
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+      }
+    };
+  }, [currentTrackIndex]);
+
+  const handlePlayPause = async () => {
+    if (!soundRef.current) return;
+    if (isPlaying) {
+      await soundRef.current.pauseAsync();
+    } else {
+      await soundRef.current.playAsync();
+    }
+  };
+
+  const handleNext = () => {
+    setIsPlaying(true);
+    setCurrentTrackIndex((prev) => (prev + 1) % TRACKS.length);
+  };
+
+  const handleBack = async () => {
+    if (position > 3000) {
+      if (soundRef.current) {
+        await soundRef.current.setPositionAsync(0);
+      }
+    } else {
+      setIsPlaying(true);
+      setCurrentTrackIndex((prev) => (prev - 1 + TRACKS.length) % TRACKS.length);
+    }
+  };
 
   return (
     <GlassCard style={styles.card}>
@@ -70,22 +159,26 @@ export const MusicPlayerCard: React.FC = memo(() => {
 
         <View style={styles.trackInfo}>
           <Text style={[styles.trackTitle, { color: textColor }]} numberOfLines={1}>
-            {TRACK.title}
+            {title}
           </Text>
           <Text style={[styles.artist, { color: subtextColor }]} numberOfLines={1}>
-            {TRACK.artist}
+            {artist}
           </Text>
         </View>
 
         <View style={styles.controls}>
-          <ControlButton icon="skip.backward.fill" color={iconColor} />
+          <ControlButton onPress={handleBack}>
+            <Ionicons name="play-skip-back" size={18} color={textColor} />
+          </ControlButton>
           <ControlButton
             icon={isPlaying ? 'pause.circle.fill' : 'play.circle.fill'}
-            color={accentColor}
+            color={textColor}
             size={32}
-            onPress={() => setIsPlaying((p) => !p)}
+            onPress={handlePlayPause}
           />
-          <ControlButton icon="skip.forward.fill" color={iconColor} />
+          <ControlButton onPress={handleNext}>
+            <Ionicons name="play-skip-forward" size={18} color={textColor} />
+          </ControlButton>
         </View>
       </View>
     </GlassCard>

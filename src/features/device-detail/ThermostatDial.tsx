@@ -3,7 +3,7 @@ import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { GlassView } from '@/src/components/ui/GlassView';
 import { haptics } from '@/src/utils/haptics';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -84,15 +84,59 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
     [min, max]
   );
 
+  // Display value = virtual room temp; only ticks by 1 every 1s after user stops, never during slide
+  const [displayValue, setDisplayValue] = useState(value);
+  // Target value = setpoint; updates live during slide for TARGET label and badge
+  const [targetValue, setTargetValue] = useState(value);
   const currentAngle = useSharedValue(valueToAngle(value));
   const currentValue = useSharedValue(value);
   const lastHapticValue = useSharedValue(Math.round(value));
+  const prevValueRef = useRef<number | undefined>(undefined);
+  const tickIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     currentAngle.value = valueToAngle(value);
     currentValue.value = value;
     lastHapticValue.value = Math.round(value);
+    setTargetValue(value);
   }, [value, valueToAngle, currentAngle, currentValue, lastHapticValue]);
+
+  // When user stops: tick display value by 1 every 1s toward target (mimics thermostat)
+  useEffect(() => {
+    if (prevValueRef.current !== undefined && prevValueRef.current !== value) {
+      if (tickIntervalRef.current) {
+        clearInterval(tickIntervalRef.current);
+        tickIntervalRef.current = null;
+      }
+      const step = value > displayValue ? 1 : -1;
+      if (displayValue !== value) {
+        tickIntervalRef.current = setInterval(() => {
+          setDisplayValue((prev) => {
+            const next = prev + step;
+            if ((step > 0 && next >= value) || (step < 0 && next <= value)) {
+              if (tickIntervalRef.current) {
+                clearInterval(tickIntervalRef.current);
+                tickIntervalRef.current = null;
+              }
+              return value;
+            }
+            return next;
+          });
+        }, 2500);
+      } else {
+        setDisplayValue(value);
+      }
+    }
+    prevValueRef.current = value;
+    return () => {
+      if (tickIntervalRef.current) {
+        clearInterval(tickIntervalRef.current);
+        tickIntervalRef.current = null;
+      }
+    };
+    // Only run when value changes; displayValue read at start of effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   const updateValue = useCallback(
     (v: number) => {
@@ -133,6 +177,7 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
       const rounded = Math.round(v);
       if (rounded !== lastHapticValue.value) {
         lastHapticValue.value = rounded;
+        runOnJS(setTargetValue)(rounded);
         runOnJS(triggerDegreeHaptic)();
       }
     })
@@ -158,15 +203,16 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
       }
       const normalized = (angle - ARC_START) / ARC_SWEEP;
       const clamped = Math.max(0, Math.min(1, normalized));
-      const targetValue = Math.round(min + clamped * (max - min));
-      currentValue.value = targetValue;
-      lastHapticValue.value = targetValue;
+      const newTarget = Math.round(min + clamped * (max - min));
+      currentValue.value = newTarget;
+      lastHapticValue.value = newTarget;
+      runOnJS(setTargetValue)(newTarget);
       runOnJS(triggerDegreeHaptic)();
       currentAngle.value = withTiming(angle, {
         duration: TAP_ANIM_DURATION,
       }, (finished) => {
         if (finished) {
-          runOnJS(updateValue)(targetValue);
+          runOnJS(updateValue)(newTarget);
         }
       });
     });
@@ -194,12 +240,21 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
     android: { elevation: 6 },
   }) ?? {};
 
-  const isHeating = value > 21;
+  const isHeating = targetValue > 21;
+  const borderColor = useThemeColor({}, 'border');
 
   return (
     <View style={styles.container}>
       <GestureDetector gesture={composed}>
         <View style={styles.dialWrapper}>
+          {/* Cold icon (top left) */}
+          <View style={styles.arcIconLeft} pointerEvents="none">
+            <IconSymbol name="ac_unit" size={36} color={COOL_COLOR} />
+          </View>
+          {/* Warm icon (top right) */}
+          <View style={styles.arcIconRight} pointerEvents="none">
+            <IconSymbol name="local_fire_department" size={36} color={WARM_COLOR} />
+          </View>
           <View style={styles.arcContainer}>
             <Svg
               width={DIAL_SIZE}
@@ -224,7 +279,7 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
-                opacity={0.95}
+                opacity={1}
               />
             </Svg>
           </View>
@@ -241,10 +296,11 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
             <View style={styles.frostedDisk}>
               <GlassView style={styles.diskGlass}>
               <Text style={[styles.targetLabel, { color: primaryColor }]}>
-                TARGET {value}°
+                TARGET {targetValue}°
               </Text>
+              <View style={[styles.divider, { backgroundColor: borderColor }]} />
               <View style={styles.tempRow}>
-                <Text style={[styles.tempValue, { color: textColor }]}>{value}</Text>
+                <Text style={[styles.tempValue, { color: textColor }]}>{displayValue}</Text>
                 <Text style={[styles.tempUnit, { color: textColor }]}>°C</Text>
               </View>
               <View
@@ -280,6 +336,18 @@ const styles = StyleSheet.create({
     height: DIAL_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  arcIconLeft: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    zIndex: 1,
+  },
+  arcIconRight: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    zIndex: 1,
   },
   arcContainer: {
     ...(Platform.OS === 'ios'
@@ -331,6 +399,12 @@ const styles = StyleSheet.create({
     fontFamily: Typography.bold,
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  divider: {
+    height: 1,
+    alignSelf: 'stretch',
+    marginVertical: 4,
+    opacity: 0.5,
   },
   tempRow: {
     flexDirection: 'row',

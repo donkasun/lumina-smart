@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
-export type DeviceType = 'light' | 'thermostat' | 'lock' | 'ac' | 'camera';
+export type DeviceType = 'light' | 'thermostat' | 'lock' | 'ac' | 'camera' | 'solar';
+export type DeviceCategory = 'comfort' | 'security' | 'entertainment';
 
 export interface Device {
   id: string;
@@ -10,6 +11,10 @@ export interface Device {
   value: number; // brightness, temperature, or lock position
   unit?: string;
   image?: any; // For camera background
+  isFavorite?: boolean;
+  color?: string; // For light color
+  lastUpdated?: number; // timestamp of last WS update
+  category?: DeviceCategory;
 }
 
 export type Scenario = 'Morning' | 'Away' | 'Work' | 'Movie' | 'Sleep';
@@ -18,7 +23,12 @@ interface DeviceState {
   devices: Device[];
   toggleDevice: (id: string) => void;
   updateDeviceValue: (id: string, value: number) => void;
+  updateDeviceColor: (id: string, color: string) => void;
+  /** Apply a delta value from a WebSocket event, clamped to [min, max] */
+  updateDeviceValueFromWS: (id: string, delta: number, min?: number, max?: number) => void;
   setScenario: (scenario: Scenario) => void;
+  deleteDevice: (id: string) => void;
+  toggleFavorite: (id: string) => void;
 }
 
 export const useDeviceStore = create<DeviceState>((set) => ({
@@ -30,6 +40,8 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       isOn: true,
       value: 60,
       unit: '%',
+      color: '#FF7F5C',
+      category: 'comfort',
     },
     {
       id: '2',
@@ -38,6 +50,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       isOn: true,
       value: 22,
       unit: '°C',
+      category: 'comfort',
     },
     {
       id: '3',
@@ -45,14 +58,16 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       type: 'lock',
       isOn: true, // true means locked
       value: 1,
+      category: 'security',
     },
     {
       id: '4',
-      name: 'Driveway',
+      name: 'Front Yard',
       type: 'camera',
       isOn: true,
       value: 0,
       image: require('../../assets/images/cctv.gif'),
+      category: 'security',
     },
     {
       id: '5',
@@ -61,6 +76,8 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       isOn: true,
       value: 70,
       unit: '%',
+      color: '#4ECDC4',
+      category: 'comfort',
     },
     {
       id: '6',
@@ -68,6 +85,16 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       type: 'lock',
       isOn: false, // false means unlocked
       value: 0,
+      category: 'security',
+    },
+    {
+      id: '7',
+      name: 'Solar Panels',
+      type: 'solar',
+      isOn: true,
+      value: 1452,
+      unit: 'W',
+      category: 'comfort',
     },
   ],
   toggleDevice: (id) =>
@@ -81,6 +108,24 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       devices: state.devices.map((d) =>
         d.id === id ? { ...d, value } : d
       ),
+    })),
+  updateDeviceColor: (id, color) =>
+    set((state) => ({
+      devices: state.devices.map((d) =>
+        d.id === id ? { ...d, color } : d
+      ),
+    })),
+  updateDeviceValueFromWS: (id, delta, min, max) =>
+    set((state) => ({
+      devices: state.devices.map((d) => {
+        if (d.id !== id) return d;
+        const raw = d.value + delta;
+        const clamped = min !== undefined && max !== undefined
+          ? Math.min(max, Math.max(min, raw))
+          : raw;
+        const value = parseFloat(clamped.toFixed(1));
+        return { ...d, value, lastUpdated: Date.now() };
+      }),
     })),
   setScenario: (scenario) =>
     set((state) => {
@@ -136,4 +181,14 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       
       return { devices: newDevices };
     }),
+  deleteDevice: (id) =>
+    set((state) => ({
+      devices: state.devices.filter((d) => d.id !== id),
+    })),
+  toggleFavorite: (id) =>
+    set((state) => ({
+      devices: state.devices.map((d) =>
+        d.id === id ? { ...d, isFavorite: !d.isFavorite } : d
+      ),
+    })),
 }));

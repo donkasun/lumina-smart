@@ -110,30 +110,15 @@ const CameraSlide = memo(function CameraSlide({
   );
 });
 
-const CAMERA_FEED_NAMES = ['Front Yard', 'Back Yard', 'Pet Cam'];
-
-const CAMERA_FEED_IMAGES = [
-  null,
-  require('../../../assets/images/backyard.gif'),
-  require('../../../assets/images/pet-cam.gif'),
-] as const;
-
 export const CameraCarousel = memo(function CameraCarousel() {
   const accentColor = useThemeColor({}, 'accent');
   const borderColor = useThemeColor({}, 'shadowLight');
   const devices = useDeviceStore((s) => s.devices);
 
-  const cameras = useMemo(() => {
-    const fromStore = devices.filter((d) => d.type === 'camera');
-    if (fromStore.length === 0) return [];
-    const source = fromStore[0];
-    return Array.from({ length: 3 }, (_, i) => ({
-      ...source,
-      id: `${source.id}-feed-${i}`,
-      name: CAMERA_FEED_NAMES[i] ?? `Camera ${i + 1}`,
-      image: CAMERA_FEED_IMAGES[i] ?? source.image,
-    }));
-  }, [devices]);
+  const cameras = useMemo(
+    () => devices.filter((d) => d.type === 'camera'),
+    [devices]
+  );
 
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);

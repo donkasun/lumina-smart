@@ -25,7 +25,11 @@ function getIconName(type: string, isOn: boolean): string {
     case 'thermostat': return 'thermometer.medium';
     case 'lock': return isOn ? 'lock.fill' : 'lock.open.fill';
     case 'camera': return 'video.fill';
-    case 'ac': return 'wind';
+    case 'ac':       return 'wind';
+    case 'vacuum':   return isOn ? 'house.fill' : 'house';
+    case 'doorbell': return 'bell.fill';
+    case 'purifier': return 'wind';
+    case 'sprinkler': return 'drop.fill';
     default: return 'square.grid.2x2.fill';
   }
 }
@@ -44,6 +48,10 @@ function getDeviceIconStyle(type: string, status: string): { iconColor: string; 
     tv:         { iconColor: '#6B7280', bg: '#F3F4F6' },
     solar:      { iconColor: '#FF7D54', bg: '#FFEDD5' },
     camera:     { iconColor: '#FF7D54', bg: '#FF7D54' },
+    vacuum:     { iconColor: isOn ? '#34D399' : '#6B7280', bg: isOn ? '#D1FAE5' : '#F3F4F6' },
+    doorbell:   { iconColor: '#FF7D54', bg: '#FFEDD5' },
+    purifier:   { iconColor: '#3B82F6', bg: '#DBEAFE' },
+    sprinkler:  { iconColor: isOn ? '#3B82F6' : '#6B7280', bg: isOn ? '#DBEAFE' : '#F3F4F6' },
   };
   return map[type] ?? { iconColor: '#6B7280', bg: '#F3F4F6' };
 }
@@ -56,8 +64,12 @@ function getStatusColor(type: string, status: string, accent: string, iconColor:
 }
 
 function getStatusLabel(device: Device): string {
-  if (device.type === 'camera') return 'LIVE FEED';
-  if (device.type === 'lock')   return device.isOn ? 'LOCKED' : 'UNLOCKED';
+  if (device.type === 'camera')    return 'LIVE FEED';
+  if (device.type === 'lock')     return device.isOn ? 'LOCKED' : 'UNLOCKED';
+  if (device.type === 'vacuum')    return device.isOn ? 'CLEANING' : 'DOCKED';
+  if (device.type === 'doorbell')  return device.isOn ? 'LIVE' : 'OFF';
+  if (device.type === 'purifier')  return device.isOn ? `AQI ${device.value}` : 'OFF';
+  if (device.type === 'sprinkler') return device.isOn ? 'WATERING' : 'IDLE';
   return device.isOn ? 'ON' : 'OFF';
 }
 

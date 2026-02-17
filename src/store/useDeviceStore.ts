@@ -201,6 +201,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
           update('6', { isOn: false }); // Unlocked
           update('2', { isOn: true });
           update('4', { isOn: true });
+          update('11', { isOn: false });
+          update('10', { isOn: true });
+          update('12', { isOn: true, value: 42, mode: 'auto' });
+          update('13', { isOn: true, value: 1 }); // zone 1 active
           break;
         case 'Away':
           update('1', { isOn: false });
@@ -209,6 +213,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
           update('6', { isOn: true });
           update('2', { isOn: true });
           update('4', { isOn: true });
+          update('11', { isOn: true });   // vacuum cleans while away
+          update('10', { isOn: true });
+          update('12', { isOn: false });
+          update('13', { isOn: false, value: 0 });
           break;
         case 'Work':
           update('1', { isOn: false });
@@ -216,6 +224,11 @@ export const useDeviceStore = create<DeviceState>((set) => ({
           update('3', { isOn: true });
           update('2', { isOn: true });
           update('4', { isOn: true });
+          update('1', { isOn: true, value: 80 }); // bright for WFH (overrides above)
+          update('11', { isOn: false });
+          update('10', { isOn: true });
+          update('12', { isOn: true, value: 35, mode: 'low' });
+          update('13', { isOn: false, value: 0 });
           break;
         case 'Movie':
           update('1', { isOn: false });
@@ -223,6 +236,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
           update('3', { isOn: true });
           update('2', { isOn: true });
           update('4', { isOn: true });
+          update('11', { isOn: false });
+          update('10', { isOn: true });
+          update('12', { isOn: true, value: 25, mode: 'low' });
+          update('13', { isOn: false, value: 0 });
           break;
         case 'Sleep':
           update('1', { isOn: false });
@@ -231,6 +248,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
           update('6', { isOn: true });
           update('2', { isOn: true });
           update('4', { isOn: true });
+          update('11', { isOn: false });
+          update('10', { isOn: true });
+          update('12', { isOn: true, value: 20, mode: 'low' });
+          update('13', { isOn: false, value: 0 });
           break;
       }
       

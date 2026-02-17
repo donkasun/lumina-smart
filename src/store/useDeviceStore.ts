@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type DeviceType = 'light' | 'thermostat' | 'lock' | 'ac' | 'camera' | 'solar';
+export type DeviceType = 'light' | 'thermostat' | 'lock' | 'ac' | 'camera' | 'solar' | 'vacuum' | 'doorbell' | 'purifier' | 'sprinkler';
 export type DeviceCategory = 'comfort' | 'security' | 'entertainment';
 
 export interface Device {
@@ -15,6 +15,7 @@ export interface Device {
   color?: string; // For light color
   lastUpdated?: number; // timestamp of last WS update
   category?: DeviceCategory;
+  mode?: string; // vacuum: 'auto'|'spot'|'edge'|'room'; purifier: 'auto'|'low'|'medium'|'high'
 }
 
 export type Scenario = 'Morning' | 'Away' | 'Work' | 'Movie' | 'Sleep';
@@ -94,6 +95,60 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       isOn: true,
       value: 1452,
       unit: 'W',
+      category: 'comfort',
+    },
+    {
+      id: '8',
+      name: 'Back Yard',
+      type: 'camera',
+      isOn: true,
+      value: 0,
+      image: require('../../assets/images/backyard.gif'),
+      category: 'security',
+    },
+    {
+      id: '9',
+      name: 'Pet Cam',
+      type: 'camera',
+      isOn: true,
+      value: 0,
+      image: require('../../assets/images/pet-cam.gif'),
+      category: 'security',
+    },
+    {
+      id: '10',
+      name: 'Front Doorbell',
+      type: 'doorbell',
+      isOn: true,
+      value: 3,
+      category: 'security',
+    },
+    {
+      id: '11',
+      name: 'Robot Vacuum',
+      type: 'vacuum',
+      isOn: false,
+      value: 87,
+      unit: '%',
+      category: 'comfort',
+      mode: 'auto',
+    },
+    {
+      id: '12',
+      name: 'Air Purifier',
+      type: 'purifier',
+      isOn: true,
+      value: 42,
+      unit: 'AQI',
+      category: 'comfort',
+      mode: 'auto',
+    },
+    {
+      id: '13',
+      name: 'Garden Sprinkler',
+      type: 'sprinkler',
+      isOn: false,
+      value: 0,
       category: 'comfort',
     },
   ],

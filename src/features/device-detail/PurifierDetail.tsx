@@ -4,6 +4,7 @@ import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { AnimatedToggle } from '@/src/components/controls/AnimatedToggle';
 import { GlassCard } from '@/src/components/ui/GlassCard';
+import { haptics } from '@/src/utils/haptics';
 import { Device, useDeviceStore } from '@/src/store/useDeviceStore';
 import React, { useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -73,6 +74,7 @@ export const PurifierDetail: React.FC<PurifierDetailProps> = ({ device }) => {
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'icon');
   const accentColor = useThemeColor({}, 'tint');
+  const borderColor = useThemeColor({}, 'border');
   const aqi = device.value;
 
   const purifierImage = device.image ?? require('../../../assets/images/air_purifier.png');
@@ -104,12 +106,12 @@ export const PurifierDetail: React.FC<PurifierDetailProps> = ({ device }) => {
             return (
               <Pressable
                 key={s}
-                onPress={() => setSpeed(s)}
+                onPress={() => { haptics.tap(); setSpeed(s); }}
                 style={[
                   styles.pill,
                   isActive
                     ? [styles.pillActive, Shadows.primaryUnderglow as object]
-                    : styles.pillInactive,
+                    : [styles.pillInactive, { backgroundColor: borderColor }],
                 ]}
               >
                 {s === 'auto' ? (
@@ -214,7 +216,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.06)',
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 20,
@@ -248,7 +249,6 @@ const styles = StyleSheet.create({
   },
   pillInactive: {
     borderRadius: 12,
-    backgroundColor: 'rgba(226,232,240,0.8)',
   },
   pillIcon: {
     marginRight: 0,

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import Animated, {
   runOnJS,
   useAnimatedProps,
@@ -64,6 +65,7 @@ export const FloorMap: React.FC<FloorMapProps> = ({
 }) => {
   const { width: screenWidth } = useWindowDimensions();
   const scale = screenWidth / VB_W;
+  const isDark = useColorScheme() === 'dark';
 
   const robotCx = useSharedValue(DOCK_CX);
   const robotCy = useSharedValue(DOCK_CY);
@@ -96,10 +98,16 @@ export const FloorMap: React.FC<FloorMapProps> = ({
   }));
 
   const roomFill = (key: RoomKey) =>
-    selectedRoom === key ? 'rgba(255,125,84,0.25)' : 'rgba(200,210,220,0.30)';
+    selectedRoom === key
+      ? 'rgba(255,125,84,0.25)'
+      : isDark ? 'rgba(255,255,255,0.06)' : 'rgba(200,210,220,0.30)';
 
   const roomStroke = (key: RoomKey) =>
-    selectedRoom === key ? PRIMARY : 'rgba(150,160,170,0.50)';
+    selectedRoom === key
+      ? PRIMARY
+      : isDark ? 'rgba(255,255,255,0.15)' : 'rgba(150,160,170,0.50)';
+
+  const labelFill = isDark ? 'rgba(200,210,220,0.75)' : 'rgba(100,116,139,0.9)';
 
   const handleRoomPress = (key: RoomKey) => {
     onRoomSelect(selectedRoom === key ? null : key);
@@ -124,7 +132,7 @@ export const FloorMap: React.FC<FloorMapProps> = ({
               x={room.x + room.w / 2}
               y={room.y + room.h / 2 + 4}
               fontSize={10}
-              fill="rgba(100,116,139,0.9)"
+              fill={labelFill}
               textAnchor="middle"
               fontWeight="600"
             >

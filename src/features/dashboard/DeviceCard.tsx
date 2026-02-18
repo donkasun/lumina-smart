@@ -29,7 +29,10 @@ function getIconName(type: string, isOn: boolean): string {
     case 'vacuum':   return isOn ? 'house.fill' : 'house';
     case 'doorbell': return 'bell.fill';
     case 'purifier': return 'wind';
-    case 'sprinkler': return 'drop.fill';
+    case 'solar': return 'sun.max.fill';
+    case 'sprinkler': return 'spigot.fill';
+    case 'tv': return 'tv.fill';
+    case 'speaker': return 'hifispeaker.fill';
     default: return 'square.grid.2x2.fill';
   }
 }
@@ -44,14 +47,14 @@ function getDeviceIconStyle(type: string, status: string): { iconColor: string; 
     lock:       { iconColor: status === 'locked' ? '#0D9488' : '#6B7280', bg: status === 'locked' ? '#CCFBF1' : '#F3F4F6' },
     garage:     { iconColor: '#6B7280', bg: '#F3F4F6' },
     alarm:      { iconColor: status === 'armed' ? '#DC2626' : '#6B7280', bg: status === 'armed' ? '#FEE2E2' : '#F3F4F6' },
-    speaker:    { iconColor: '#9333EA', bg: '#F3E8FF' },
-    tv:         { iconColor: '#6B7280', bg: '#F3F4F6' },
+    speaker:    { iconColor: isOn ? '#9333EA' : '#6B7280', bg: isOn ? '#F3E8FF' : '#F3F4F6' },
+    tv:         { iconColor: isOn ? '#3B82F6' : '#6B7280', bg: isOn ? '#BFDBFE' : '#F3F4F6' },
     solar:      { iconColor: '#FF7D54', bg: '#FFEDD5' },
     camera:     { iconColor: '#FF7D54', bg: '#FF7D54' },
-    vacuum:     { iconColor: isOn ? '#34D399' : '#6B7280', bg: isOn ? '#D1FAE5' : '#E5E7EB' },
+    vacuum:     { iconColor: isOn ? '#34D399' : '#6B7280', bg: isOn ? '#D1FAE5' : '#F3F4F6' },
     doorbell:   { iconColor: '#FF7D54', bg: '#FFEDD5' },
-    purifier:   { iconColor: '#3B82F6', bg: '#BFDBFE' },
-    sprinkler:  { iconColor: isOn ? '#3B82F6' : '#6B7280', bg: isOn ? '#DBEAFE' : '#F3F4F6' },
+    purifier:   { iconColor: isOn ? '#3B82F6' : '#6B7280', bg: isOn ? '#BFDBFE' : '#F3F4F6' },
+    sprinkler:  { iconColor: isOn ? '#EA580C' : '#6B7280', bg: isOn ? '#DBEAFE' : '#F3F4F6' },
   };
   return map[type] ?? { iconColor: '#6B7280', bg: '#F3F4F6' };
 }
@@ -76,6 +79,7 @@ function getStatusLabel(device: Device): string {
   if (device.type === 'doorbell')  return device.isOn ? 'LIVE' : 'OFF';
   if (device.type === 'purifier')  return device.isOn ? `AQI ${device.value}` : 'OFF';
   if (device.type === 'sprinkler') return device.isOn ? 'WATERING' : 'IDLE';
+  if (device.type === 'tv' || device.type === 'speaker') return device.isOn ? 'ACTIVE' : 'OFF';
   return device.isOn ? 'ON' : 'OFF';
 }
 
@@ -165,7 +169,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
               {hasCustomIcon && device.image ? (
                 <Image
                   source={device.image}
-                  style={styles.customIconImage}
+                  style={[styles.customIconImage, { tintColor: iconTint }]}
                   contentFit="contain"
                 />
               ) : (

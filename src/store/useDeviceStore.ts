@@ -10,7 +10,9 @@ export type DeviceType =
   | "vacuum"
   | "doorbell"
   | "purifier"
-  | "sprinkler";
+  | "sprinkler"
+  | "tv"
+  | "speaker";
 export type DeviceCategory = "comfort" | "security" | "entertainment";
 
 export interface Device {
@@ -45,11 +47,14 @@ const DEVICE_IDS = {
   VACUUM: "11",
   PURIFIER: "12",
   SPRINKLER: "13",
+  SMART_TV: "14",
+  SPEAKERS: "15",
 } as const;
 
 interface DeviceState {
   devices: Device[];
   toggleDevice: (id: string) => void;
+  setDeviceOn: (id: string, isOn: boolean) => void;
   updateDeviceValue: (id: string, value: number) => void;
   updateDeviceColor: (id: string, color: string) => void;
   updateDeviceMode: (id: string, mode: string) => void;
@@ -186,11 +191,33 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       value: 0,
       category: "comfort",
     },
+    {
+      id: "14",
+      name: "Smart TV",
+      type: "tv",
+      isOn: false,
+      value: 0,
+      category: "entertainment",
+    },
+    {
+      id: "15",
+      name: "Speakers",
+      type: "speaker",
+      isOn: true,
+      value: 0,
+      category: "entertainment",
+    },
   ],
   toggleDevice: (id) =>
     set((state) => ({
       devices: state.devices.map((d) =>
         d.id === id ? { ...d, isOn: !d.isOn } : d,
+      ),
+    })),
+  setDeviceOn: (id, isOn) =>
+    set((state) => ({
+      devices: state.devices.map((d) =>
+        d.id === id ? { ...d, isOn } : d,
       ),
     })),
   updateDeviceValue: (id, value) =>
@@ -241,6 +268,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
           update(D.VACUUM, { isOn: false }); // Vacuum docked (quiet morning)
           update(D.PURIFIER, { isOn: true, value: 42, mode: "auto" }); // Purifier auto
           update(D.SPRINKLER, { isOn: true, value: 1 }); // Sprinkler zone 1 (Front Lawn)
+          update(D.SMART_TV, { isOn: false });
           break;
 
         case "Away":
@@ -253,6 +281,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
           update(D.VACUUM, { isOn: true }); // Vacuum cleans while away
           update(D.PURIFIER, { isOn: false }); // Purifier off (nobody home)
           update(D.SPRINKLER, { isOn: false, value: 0 }); // Sprinkler off
+          update(D.SMART_TV, { isOn: false });
           break;
 
         case "Work":
@@ -265,6 +294,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
           update(D.VACUUM, { isOn: false }); // Vacuum docked (do not disturb)
           update(D.PURIFIER, { isOn: true, value: 35, mode: "low" }); // Purifier quiet
           update(D.SPRINKLER, { isOn: false, value: 0 }); // Sprinkler off
+          update(D.SMART_TV, { isOn: false });
           break;
 
         case "Movie":
@@ -277,6 +307,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
           update(D.VACUUM, { isOn: false }); // Vacuum docked (quiet)
           update(D.PURIFIER, { isOn: true, value: 25, mode: "low" }); // Purifier quiet
           update(D.SPRINKLER, { isOn: false, value: 0 }); // Sprinkler off
+          update(D.SMART_TV, { isOn: true }); // TV on for Movie mode
           break;
 
         case "Sleep":
@@ -289,6 +320,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
           update(D.VACUUM, { isOn: false }); // Vacuum docked, charging
           update(D.PURIFIER, { isOn: true, value: 20, mode: "low" }); // Purifier whisper
           update(D.SPRINKLER, { isOn: false, value: 0 }); // Sprinkler off
+          update(D.SMART_TV, { isOn: false });
           break;
       }
 

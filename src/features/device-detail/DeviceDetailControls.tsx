@@ -68,6 +68,34 @@ export const DeviceDetailControls: React.FC<DeviceDetailControlsProps> = ({ devi
     case 'purifier':
       return <PurifierDetail device={device} />;
 
+    case 'tv':
+      return (
+        <View style={styles.section}>
+          <GlassCard style={styles.acCard}>
+            <Text style={styles.acLabel}>Smart TV</Text>
+            <AnimatedToggle
+              value={device.isOn}
+              onChange={(_v) => toggleDevice(device.id)}
+              label="Power"
+            />
+          </GlassCard>
+        </View>
+      );
+
+    case 'speaker':
+      return (
+        <View style={styles.section}>
+          <GlassCard style={styles.acCard}>
+            <Text style={styles.acLabel}>Speakers</Text>
+            <AnimatedToggle
+              value={device.isOn}
+              onChange={(_v) => toggleDevice(device.id)}
+              label="Power"
+            />
+          </GlassCard>
+        </View>
+      );
+
     default:
       return null;
   }

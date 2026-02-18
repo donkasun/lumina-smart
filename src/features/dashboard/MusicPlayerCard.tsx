@@ -3,10 +3,11 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { Audio, AVPlaybackStatus } from 'expo-av';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useDeviceStore } from '@/src/store/useDeviceStore';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -28,6 +29,8 @@ const TRACKS = [
     filename: 'Intergalactic - Alex Jones _ Xander Jones.mp3',
   },
 ];
+
+const SPEAKER_DEVICE_ID = '15';
 
 const parseTrackInfo = (filename: string) => {
   const [title, artist] = filename.replace('.mp3', '').split(' - ');
@@ -68,76 +71,58 @@ const ControlButton: React.FC<ControlButtonProps> = ({ icon, color, size = 24, o
 };
 
 export const MusicPlayerCard: React.FC = memo(function MusicPlayerCard() {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [position, setPosition] = useState(0);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const player = useAudioPlayer(TRACKS[0].file);
+  const status = useAudioPlayerStatus(player);
+  const setDeviceOn = useDeviceStore((s) => s.setDeviceOn);
 
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'subtext');
 
+  const isPlaying = status.playing;
+  const positionMs = (status.currentTime ?? 0) * 1000;
+
+  // Sync speaker device status with music playback
+  useEffect(() => {
+    setDeviceOn(SPEAKER_DEVICE_ID, isPlaying);
+  }, [isPlaying, setDeviceOn]);
+
+  // When track ends, advance to next
+  useEffect(() => {
+    if (status.didJustFinish) {
+      const next = (currentTrackIndex + 1) % TRACKS.length;
+      setCurrentTrackIndex(next);
+      player.replace(TRACKS[next].file);
+      player.play();
+    }
+  }, [status.didJustFinish]); // eslint-disable-line react-hooks/exhaustive-deps -- only react to didJustFinish
+
   const currentTrack = TRACKS[currentTrackIndex];
   const { title, artist } = parseTrackInfo(currentTrack.filename);
 
-  const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
-    if (status.isLoaded) {
-      setPosition(status.positionMillis);
-      setIsPlaying(status.isPlaying);
-      if (status.didJustFinish) {
-        setIsPlaying(true);
-        setCurrentTrackIndex((prev) => (prev + 1) % TRACKS.length);
-      }
-    }
-  };
-
-  const loadAndPlayTrack = async (index: number, shouldPlay: boolean) => {
-    try {
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-      }
-      const { sound } = await Audio.Sound.createAsync(
-        TRACKS[index].file,
-        { shouldPlay },
-        onPlaybackStatusUpdate
-      );
-      soundRef.current = sound;
-    } catch (error) {
-      console.error('Error loading track:', error);
-    }
-  };
-
-  useEffect(() => {
-    loadAndPlayTrack(currentTrackIndex, isPlaying);
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally only re-run on track change
-  }, [currentTrackIndex]);
-
-  const handlePlayPause = async () => {
-    if (!soundRef.current) return;
+  const handlePlayPause = () => {
     if (isPlaying) {
-      await soundRef.current.pauseAsync();
+      player.pause();
     } else {
-      await soundRef.current.playAsync();
+      player.play();
     }
   };
 
   const handleNext = () => {
-    setIsPlaying(true);
-    setCurrentTrackIndex((prev) => (prev + 1) % TRACKS.length);
+    const next = (currentTrackIndex + 1) % TRACKS.length;
+    setCurrentTrackIndex(next);
+    player.replace(TRACKS[next].file);
+    player.play();
   };
 
-  const handleBack = async () => {
-    if (position > 3000) {
-      if (soundRef.current) {
-        await soundRef.current.setPositionAsync(0);
-      }
+  const handleBack = () => {
+    if (positionMs > 3000) {
+      player.seekTo(0);
     } else {
-      setIsPlaying(true);
-      setCurrentTrackIndex((prev) => (prev - 1 + TRACKS.length) % TRACKS.length);
+      const prev = (currentTrackIndex - 1 + TRACKS.length) % TRACKS.length;
+      setCurrentTrackIndex(prev);
+      player.replace(TRACKS[prev].file);
+      player.play();
     }
   };
 

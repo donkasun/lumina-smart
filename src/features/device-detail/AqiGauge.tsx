@@ -4,6 +4,7 @@ import Animated, {
   Easing,
   useAnimatedProps,
   useSharedValue,
+  withDelay,
   withTiming,
 } from 'react-native-reanimated';
 import { Line, Path, Svg } from 'react-native-svg';
@@ -61,21 +62,23 @@ interface AqiGaugeProps {
 }
 
 export const AqiGauge: React.FC<AqiGaugeProps> = ({ aqi }) => {
-  const progress = useSharedValue(0);
+  // Needle angle: 180° = left (green), 360° = right (red)
+  const needleAngle = useSharedValue(180);
   const subtextColor = useThemeColor({}, 'icon');
+  const textColor = useThemeColor({}, 'text');
+  const borderColor = useThemeColor({}, 'border');
 
   useEffect(() => {
-    progress.value = withTiming(1, { duration: 1500, easing: Easing.out(Easing.cubic) });
-  }, [progress]);
-
-  // 180° (left/green) → 360° (right/red) as AQI increases 0→200
-  const targetAngleDeg = 180 + (aqi / 200) * 180;
+    const target = 180 + (aqi / 200) * 180;
+    needleAngle.value = withDelay(
+      200,
+      withTiming(target, { duration: 1400, easing: Easing.out(Easing.cubic) })
+    );
+  }, [aqi, needleAngle]);
 
   const needleProps = useAnimatedProps(() => {
     'worklet';
-    // Animate from 180° (left) sweeping clockwise to target
-    const angleDeg = 180 + (targetAngleDeg - 180) * progress.value;
-    const rad = (angleDeg * Math.PI) / 180;
+    const rad = (needleAngle.value * Math.PI) / 180;
     return {
       x2: String((CX + NEEDLE_LENGTH * Math.cos(rad)).toFixed(2)),
       y2: String((CY + NEEDLE_LENGTH * Math.sin(rad)).toFixed(2)),
@@ -89,7 +92,7 @@ export const AqiGauge: React.FC<AqiGaugeProps> = ({ aqi }) => {
       <View style={styles.gaugeSvgWrap}>
         <Svg width="100%" height="100%" viewBox={`0 0 280 ${VIEWBOX_HEIGHT}`} preserveAspectRatio="xMidYMax meet">
           {/* Background track */}
-          <Path d={TRACK_PATH} stroke="rgba(0,0,0,0.08)" strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
+          <Path d={TRACK_PATH} stroke={borderColor} strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
           {/* Color segments */}
           <Path d={GREEN_PATH}  stroke="#34D399" strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
           <Path d={YELLOW_PATH} stroke="#FBBF24" strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
@@ -101,7 +104,7 @@ export const AqiGauge: React.FC<AqiGaugeProps> = ({ aqi }) => {
             x1={String(CX)}
             y1={String(CY)}
             animatedProps={needleProps}
-            stroke="#1E293B"
+            stroke={textColor}
             strokeWidth={4}
             strokeLinecap="round"
           />
@@ -110,7 +113,7 @@ export const AqiGauge: React.FC<AqiGaugeProps> = ({ aqi }) => {
             y1={String(CY)}
             x2={String(CX + 0.01)}
             y2={String(CY)}
-            stroke="#1E293B"
+            stroke={textColor}
             strokeWidth={12}
             strokeLinecap="round"
           />

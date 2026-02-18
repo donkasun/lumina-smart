@@ -38,6 +38,7 @@ interface PollutantRowProps {
 function PollutantRow({ label, value, max, unit, isHumidity = false }: PollutantRowProps) {
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'icon');
+  const borderColor = useThemeColor({}, 'border');
   const pct = value / max;
   const trackWidth = useSharedValue(0);
   const progress = useSharedValue(0);
@@ -65,8 +66,8 @@ function PollutantRow({ label, value, max, unit, isHumidity = false }: Pollutant
           {valueText} {unit}
         </Text>
       </View>
-      <View style={styles.trackWrapper} onLayout={handleLayout}>
-        <View style={styles.track} />
+      <View style={[styles.trackWrapper, { backgroundColor: borderColor }]} onLayout={handleLayout}>
+        <View style={[styles.track, { backgroundColor: borderColor }]} />
         <Animated.View
           style={[
             styles.fill,
@@ -143,12 +144,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(226,232,240,0.8)',
     overflow: 'hidden',
   },
   track: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(226,232,240,0.8)',
   },
   fill: {
     position: 'absolute',

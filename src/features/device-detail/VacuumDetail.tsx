@@ -1,16 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { GlassCard } from '@/src/components/ui/GlassCard';
-import { GlassView } from '@/src/components/ui/GlassView';
+import { haptics } from '@/src/utils/haptics';
 import { Device, useDeviceStore } from '@/src/store/useDeviceStore';
 import { PRIMARY } from './constants';
 import { FloorMap, RoomKey } from './FloorMap';
@@ -31,7 +26,7 @@ export const VacuumDetail: React.FC<VacuumDetailProps> = ({ device }) => {
   const getState = useDeviceStore.getState;
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'icon');
-  const surfaceColor = useThemeColor({}, 'surface');
+  const borderColor = useThemeColor({}, 'border');
 
   const [selectedRoom, setSelectedRoom] = useState<RoomKey | null>(null);
   const [selectedMode, setSelectedMode] = useState<VacuumMode>(
@@ -60,8 +55,10 @@ export const VacuumDetail: React.FC<VacuumDetailProps> = ({ device }) => {
 
   const handleStartPause = () => {
     if (device.isOn) {
+      haptics.impact();
       setIsReturning(true);
     } else {
+      haptics.success();
       setIsReturning(false);
       toggleDevice(device.id);
     }
@@ -69,6 +66,7 @@ export const VacuumDetail: React.FC<VacuumDetailProps> = ({ device }) => {
 
   const handleReturnToDock = () => {
     if (device.isOn) {
+      haptics.impact();
       setIsReturning(true);
     }
   };
@@ -80,29 +78,16 @@ export const VacuumDetail: React.FC<VacuumDetailProps> = ({ device }) => {
 
   return (
     <View style={styles.section}>
-      {/* Map — rounded panel with "Select Room" overlay */}
-      <View style={styles.mapWrapper}>
-        <GlassCard style={styles.mapCard}>
-          <View style={styles.mapOuter}>
-            <View style={styles.mapContainer}>
-              <FloorMap
-                isOn={device.isOn}
-                selectedRoom={selectedRoom}
-                onRoomSelect={(room) => setSelectedRoom(room)}
-                returnToDock={isReturning}
-                onDockReached={handleDockReached}
-              />
-            </View>
-            <Pressable
-              style={[styles.selectRoomButton, { backgroundColor: surfaceColor }]}
-              onPress={() => {}}
-            >
-              <IconSymbol name="location.fill" size={16} color={PRIMARY} />
-              <Text style={[styles.selectRoomLabel, { color: textColor }]}>Select Room</Text>
-            </Pressable>
-          </View>
-        </GlassCard>
-      </View>
+      {/* Map */}
+      <GlassCard style={styles.mapCard}>
+        <FloorMap
+          isOn={device.isOn}
+          selectedRoom={selectedRoom}
+          onRoomSelect={(room) => setSelectedRoom(room)}
+          returnToDock={isReturning}
+          onDockReached={handleDockReached}
+        />
+      </GlassCard>
 
       {/* Battery / Status — compact horizontal card */}
       <GlassCard>
@@ -176,9 +161,10 @@ export const VacuumDetail: React.FC<VacuumDetailProps> = ({ device }) => {
               key={label}
               style={[
                 styles.suctionSegment,
+                { backgroundColor: borderColor },
                 suctionIndex === i && styles.suctionSegmentActive,
               ]}
-              onPress={() => setSuctionIndex(i)}
+              onPress={() => { haptics.tap(); setSuctionIndex(i); }}
             >
               <Text
                 style={[
@@ -232,42 +218,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 32,
   },
-  mapWrapper: {
-    width: '100%',
-    borderRadius: 24,
-    overflow: 'hidden',
-  },
   mapCard: {
     padding: 0,
     overflow: 'hidden',
-  },
-  mapOuter: {
-    position: 'relative',
-    width: '100%',
-  },
-  mapContainer: {
-    width: '100%',
-  },
-  selectRoomButton: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  selectRoomLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    fontFamily: Typography.bold,
   },
   statusRow: {
     flexDirection: 'row',
@@ -378,7 +331,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(150, 160, 170, 0.12)',
   },
   suctionSegmentActive: {
     backgroundColor: PRIMARY,

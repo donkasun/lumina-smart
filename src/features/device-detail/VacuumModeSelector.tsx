@@ -9,6 +9,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { GlassView } from '@/src/components/ui/GlassView';
+import { haptics } from '@/src/utils/haptics';
 import { PRIMARY } from './constants';
 
 export type VacuumMode = 'auto' | 'spot' | 'edge' | 'room';
@@ -45,7 +46,7 @@ const ModeCard: React.FC<{
   };
 
   return (
-    <Pressable onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut} style={styles.modeCard}>
+    <Pressable onPress={() => { haptics.tap(); onPress(); }} onPressIn={handlePressIn} onPressOut={handlePressOut} style={styles.modeCard}>
       <Animated.View style={[animatedStyle, styles.modeCardInner]}>
         {isSelected ? (
           <View style={styles.cardSelected}>

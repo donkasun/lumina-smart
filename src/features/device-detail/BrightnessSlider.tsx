@@ -16,13 +16,16 @@ import Animated, {
 interface BrightnessSliderProps {
   value: number; // 0–100
   onChange: (value: number) => void;
+  isOn?: boolean; // when false, slider and thumb use gray
 }
 
 const THUMB_SIZE = 20;
 const TRACK_HEIGHT = 8;
 const PRIMARY = '#FF7D54';
+const TRACK_OFF = '#9CA3AF';
 
-export const BrightnessSlider: React.FC<BrightnessSliderProps> = ({ value, onChange }) => {
+export const BrightnessSlider: React.FC<BrightnessSliderProps> = ({ value, onChange, isOn = true }) => {
+  const accentColor = isOn ? PRIMARY : TRACK_OFF;
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'icon');
 
@@ -82,14 +85,14 @@ export const BrightnessSlider: React.FC<BrightnessSliderProps> = ({ value, onCha
           <View style={[styles.track, { backgroundColor: 'rgba(226,232,240,0.8)' }]} />
           {/* Active fill */}
           <Animated.View
-            style={[styles.trackFill, { backgroundColor: PRIMARY }, fillStyle]}
+            style={[styles.trackFill, { backgroundColor: accentColor }, fillStyle]}
           />
           {/* Thumb */}
           <Animated.View style={[styles.thumbWrapper, thumbStyle]}>
             <View
               style={[
                 styles.thumb,
-                { borderColor: PRIMARY },
+                { borderColor: accentColor },
                 Shadows.card as object,
               ]}
             />

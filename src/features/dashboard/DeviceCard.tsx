@@ -66,6 +66,12 @@ function getStatusColor(type: string, status: string, accent: string, iconColor:
 function getStatusLabel(device: Device): string {
   if (device.type === 'camera')    return 'LIVE FEED';
   if (device.type === 'lock')     return device.isOn ? 'LOCKED' : 'UNLOCKED';
+  if (device.type === 'thermostat') {
+    if (!device.isOn) return 'OFF';
+    const threshold = 23;
+    const mode = device.value >= threshold ? 'HEATING' : 'COOLING';
+    return `${mode} ${device.value}${device.unit ?? '°C'}`;
+  }
   if (device.type === 'vacuum')    return device.isOn ? 'CLEANING' : 'DOCKED';
   if (device.type === 'doorbell')  return device.isOn ? 'LIVE' : 'OFF';
   if (device.type === 'purifier')  return device.isOn ? `AQI ${device.value}` : 'OFF';
@@ -188,9 +194,24 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
             </Text>
 
             {/* Status */}
-            <Text style={[styles.status, { color: isCamera ? 'rgba(255,255,255,0.8)' : statusColor }]}>
-              {statusLabel}
-            </Text>
+            <View style={styles.statusRow}>
+              <Text style={[styles.status, { color: isCamera ? 'rgba(255,255,255,0.8)' : statusColor }]}>
+                {statusLabel}
+              </Text>
+              {device.type === 'light' && device.isOn && (
+                <>
+                  <View
+                    style={[
+                      styles.lightColorDot,
+                      { backgroundColor: device.color ?? '#FF7D54' },
+                    ]}
+                  />
+                  <Text style={[styles.status, styles.lightBrightness, { color: isCamera ? 'rgba(255,255,255,0.8)' : statusColor }]}>
+                    {device.value}{device.unit ?? '%'}
+                  </Text>
+                </>
+              )}
+            </View>
           </View>
         </View>
       </Animated.View>
@@ -273,11 +294,25 @@ const styles = StyleSheet.create({
     fontFamily: Typography.bold,
     textAlign: 'center',
   },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
   status: {
     fontSize: 9,
     fontWeight: '700',
     fontFamily: Typography.bold,
     textTransform: 'uppercase',
     textAlign: 'center',
+  },
+  lightColorDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  lightBrightness: {
+    textTransform: 'none',
   },
 });

@@ -110,7 +110,7 @@ export const LightDetail: React.FC<{ device: Device }> = ({ device }) => {
           </View>
         </View>
       </View>
-      <BrightnessSlider value={device.value} onChange={handleBrightnessChange} />
+      <BrightnessSlider value={device.value} onChange={handleBrightnessChange} isOn={device.isOn} />
       <ColourTemperatureBar />
       <ColourPalette selectedColor={device.color} onColorChange={handleColorChange} />
       <ScheduleList />

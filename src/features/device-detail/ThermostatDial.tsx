@@ -240,9 +240,9 @@ export const ThermostatDial: React.FC<ThermostatDialProps> = ({
     android: { elevation: 6 },
   }) ?? {};
 
-  // HEATING = room temp below setpoint (heating up); COOLING = room temp above setpoint (cooling down)
-  const isHeating =
-    displayValue < value || (displayValue === value && targetValue > 21);
+  // Heating/cooling from where the temp sits on the slider: right (orange) = heating, left (blue) = cooling
+  const threshold = (min + max) / 2;
+  const isHeating = targetValue >= threshold;
   const borderColor = useThemeColor({}, 'border');
 
   return (

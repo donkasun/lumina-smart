@@ -81,6 +81,9 @@ const MAPPING = {
   'video.slash.fill': 'videocam-off',
   'speaker.wave.2.fill': 'volume-up',
   'person.fill': 'person',
+  'info': 'info',
+  'info.outline': 'info-outline',
+  'auto_mode': 'autorenew',
 } as unknown as IconMapping;
 
 /**

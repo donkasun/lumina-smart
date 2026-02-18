@@ -6,6 +6,7 @@ const IOS_SYMBOL_MAP: Partial<Record<string, SymbolViewProps['name']>> = {
   'local_fire_department': 'flame.fill',
   'ac_unit': 'snowflake',
   'autorenew': 'arrow.triangle.2.circlepath',
+  'auto_mode': 'arrow.triangle.2.circlepath',
   'eco': 'leaf.fill',
   'mode_fan': 'fanblades.fill',
   'humidity_mid': 'humidity',

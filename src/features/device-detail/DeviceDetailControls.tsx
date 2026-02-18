@@ -8,6 +8,7 @@ import { Device, useDeviceStore } from '@/src/store/useDeviceStore';
 import { CameraDetail } from './CameraDetail';
 import { DoorbellDetail } from './DoorbellDetail';
 import { LightDetail } from './LightDetail';
+import { PurifierDetail } from './PurifierDetail';
 import { SolarDetail } from './SolarDetail';
 import { ThermostatDetail } from './ThermostatDetail';
 import { VacuumDetail } from './VacuumDetail';
@@ -63,6 +64,9 @@ export const DeviceDetailControls: React.FC<DeviceDetailControlsProps> = ({ devi
 
     case 'doorbell':
       return <DoorbellDetail device={device} floatingBottomBar />;
+
+    case 'purifier':
+      return <PurifierDetail device={device} />;
 
     default:
       return null;

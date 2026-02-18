@@ -12,7 +12,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const TYPES_WITH_CUSTOM_HERO: DeviceType[] = ['light', 'thermostat', 'camera', 'solar', 'vacuum', 'doorbell'];
+const TYPES_WITH_CUSTOM_HERO: DeviceType[] = ['light', 'thermostat', 'camera', 'solar', 'vacuum', 'doorbell', 'purifier'];
 /** Types that hide the header title (vacuum keeps its title) */
 const TYPES_WITHOUT_HEADER_TITLE: DeviceType[] = ['light', 'thermostat', 'camera', 'solar'];
 

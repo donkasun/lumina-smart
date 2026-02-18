@@ -9,6 +9,7 @@ import { CameraDetail } from './CameraDetail';
 import { LightDetail } from './LightDetail';
 import { SolarDetail } from './SolarDetail';
 import { ThermostatDetail } from './ThermostatDetail';
+import { VacuumDetail } from './VacuumDetail';
 
 export interface DeviceDetailControlsProps {
   device: Device;
@@ -55,6 +56,9 @@ export const DeviceDetailControls: React.FC<DeviceDetailControlsProps> = ({ devi
 
     case 'solar':
       return <SolarDetail device={device} />;
+
+    case 'vacuum':
+      return <VacuumDetail device={device} />;
 
     default:
       return null;

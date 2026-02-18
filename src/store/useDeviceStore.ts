@@ -42,6 +42,7 @@ interface DeviceState {
   toggleDevice: (id: string) => void;
   updateDeviceValue: (id: string, value: number) => void;
   updateDeviceColor: (id: string, color: string) => void;
+  updateDeviceMode: (id: string, mode: string) => void;
   /** Apply a delta value from a WebSocket event, clamped to [min, max] */
   updateDeviceValueFromWS: (id: string, delta: number, min?: number, max?: number) => void;
   setScenario: (scenario: Scenario) => void;
@@ -187,6 +188,12 @@ export const useDeviceStore = create<DeviceState>((set) => ({
     set((state) => ({
       devices: state.devices.map((d) =>
         d.id === id ? { ...d, color } : d
+      ),
+    })),
+  updateDeviceMode: (id, mode) =>
+    set((state) => ({
+      devices: state.devices.map((d) =>
+        d.id === id ? { ...d, mode } : d
       ),
     })),
   updateDeviceValueFromWS: (id, delta, min, max) =>

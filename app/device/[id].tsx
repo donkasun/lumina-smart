@@ -11,7 +11,9 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const TYPES_WITH_CUSTOM_HERO: DeviceType[] = ['light', 'thermostat', 'camera', 'solar'];
+const TYPES_WITH_CUSTOM_HERO: DeviceType[] = ['light', 'thermostat', 'camera', 'solar', 'vacuum'];
+/** Types that hide the header title (vacuum keeps its title) */
+const TYPES_WITHOUT_HEADER_TITLE: DeviceType[] = ['light', 'thermostat', 'camera', 'solar'];
 
 export default function DeviceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -58,7 +60,9 @@ export default function DeviceDetailScreen() {
           <TouchableOpacity onPress={handleBack} style={[styles.backButton, { backgroundColor: surfaceColor }]}>
             <Ionicons name="arrow-back" size={18} color={textColor} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: textColor }]}>{device.name}</Text>
+          <Text style={[styles.headerTitle, { color: textColor }]}>
+            {TYPES_WITHOUT_HEADER_TITLE.includes(device.type) ? '' : device.name}
+          </Text>
           <View style={{ width: 40 }} />
         </View>
 

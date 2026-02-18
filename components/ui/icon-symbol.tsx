@@ -65,6 +65,15 @@ const MAPPING = {
   'dark_mode': 'dark-mode',
   'arrow_back_ios_new': 'arrow-back-ios',
   'more_vert': 'more-vert',
+  'location.fill': 'location-on',
+  'battery.75percent': 'battery-charging-full',
+  'brush.fill': 'brush',
+  'cleaning.services': 'cleaning-services',
+  'air.purifier.fill': 'air',
+  'wand.and.stars': 'auto-awesome',
+  'scope': 'gps-fixed',
+  'line.diagonal': 'border-outer',
+  'square.grid.2x2': 'grid-view',
 } as unknown as IconMapping;
 
 /**

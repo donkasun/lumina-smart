@@ -74,6 +74,13 @@ const MAPPING = {
   'scope': 'gps-fixed',
   'line.diagonal': 'border-outer',
   'square.grid.2x2': 'grid-view',
+  'wifi': 'wifi',
+  'sensor.fill': 'sensors',
+  'bell.fill': 'notifications',
+  'minus.circle.fill': 'do-not-disturb-alt',
+  'video.slash.fill': 'videocam-off',
+  'speaker.wave.2.fill': 'volume-up',
+  'person.fill': 'person',
 } as unknown as IconMapping;
 
 /**

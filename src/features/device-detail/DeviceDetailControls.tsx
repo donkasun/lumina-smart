@@ -6,6 +6,7 @@ import { LockControls } from '@/src/components/controls/LockControls';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Device, useDeviceStore } from '@/src/store/useDeviceStore';
 import { CameraDetail } from './CameraDetail';
+import { DoorbellDetail } from './DoorbellDetail';
 import { LightDetail } from './LightDetail';
 import { SolarDetail } from './SolarDetail';
 import { ThermostatDetail } from './ThermostatDetail';
@@ -59,6 +60,9 @@ export const DeviceDetailControls: React.FC<DeviceDetailControlsProps> = ({ devi
 
     case 'vacuum':
       return <VacuumDetail device={device} />;
+
+    case 'doorbell':
+      return <DoorbellDetail device={device} floatingBottomBar />;
 
     default:
       return null;

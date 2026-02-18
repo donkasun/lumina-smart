@@ -197,63 +197,63 @@ export const useDeviceStore = create<DeviceState>((set) => ({
 
       switch (scenario) {
         case 'Morning':
-          update('1', { isOn: true, value: 60 });
-          update('5', { isOn: true, value: 70 });
-          update('3', { isOn: true }); // Locked
-          update('6', { isOn: false }); // Unlocked
-          update('2', { isOn: true });
-          update('4', { isOn: true });
-          update('11', { isOn: false });
-          update('10', { isOn: true });
-          update('12', { isOn: true, value: 42, mode: 'auto' });
-          update('13', { isOn: true, value: 1 }); // zone 1 active
+          update('1',  { isOn: true,  value: 60 });             // Main Light on at 60%
+          update('2',  { isOn: true,  value: 22 });             // Thermostat 22°C
+          update('3',  { isOn: true  });                        // Front Door locked
+          update('4',  { isOn: true  });                        // Front Yard Cam on
+          update('5',  { isOn: true,  value: 70 });             // Kitchen Light on at 70%
+          update('6',  { isOn: false });                        // Bedroom Lock unlocked
+          update('11', { isOn: false });                        // Vacuum docked (quiet morning)
+          update('12', { isOn: true,  value: 42, mode: 'auto' }); // Purifier auto mode
+          update('13', { isOn: true,  value: 1  });             // Sprinkler zone 1 (Front Lawn)
           break;
+
         case 'Away':
-          update('1', { isOn: false });
-          update('5', { isOn: false });
-          update('3', { isOn: true }); 
-          update('6', { isOn: true });
-          update('2', { isOn: true });
-          update('4', { isOn: true });
-          update('11', { isOn: true });   // vacuum cleans while away
-          update('10', { isOn: true });
-          update('12', { isOn: false });
-          update('13', { isOn: false, value: 0 });
+          update('1',  { isOn: false });                        // Main Light off
+          update('2',  { isOn: true,  value: 18 });             // Thermostat eco 18°C
+          update('3',  { isOn: true  });                        // Front Door locked
+          update('4',  { isOn: true  });                        // Front Yard Cam on
+          update('5',  { isOn: false });                        // Kitchen Light off
+          update('6',  { isOn: true  });                        // Bedroom Lock locked
+          update('11', { isOn: true  });                        // Vacuum cleans while away
+          update('12', { isOn: false });                        // Purifier off (nobody home)
+          update('13', { isOn: false, value: 0 });              // Sprinkler off
           break;
+
         case 'Work':
-          update('1', { isOn: false });
-          update('5', { isOn: false });
-          update('3', { isOn: true });
-          update('2', { isOn: true });
-          update('4', { isOn: true });
-          update('1', { isOn: true, value: 80 }); // bright for WFH (overrides above)
-          update('11', { isOn: false });
-          update('10', { isOn: true });
-          update('12', { isOn: true, value: 35, mode: 'low' });
-          update('13', { isOn: false, value: 0 });
+          update('1',  { isOn: true,  value: 80 });             // Main Light bright (80%) for focus
+          update('2',  { isOn: true,  value: 21 });             // Thermostat 21°C
+          update('3',  { isOn: true  });                        // Front Door locked
+          update('4',  { isOn: true  });                        // Front Yard Cam on
+          update('5',  { isOn: false });                        // Kitchen Light off
+          update('6',  { isOn: true  });                        // Bedroom Lock locked
+          update('11', { isOn: false });                        // Vacuum docked (do not disturb)
+          update('12', { isOn: true,  value: 35, mode: 'low' }); // Purifier quiet low
+          update('13', { isOn: false, value: 0 });              // Sprinkler off
           break;
+
         case 'Movie':
-          update('1', { isOn: false });
-          update('5', { isOn: true, value: 20 });
-          update('3', { isOn: true });
-          update('2', { isOn: true });
-          update('4', { isOn: true });
-          update('11', { isOn: false });
-          update('10', { isOn: true });
-          update('12', { isOn: true, value: 25, mode: 'low' });
-          update('13', { isOn: false, value: 0 });
+          update('1',  { isOn: false });                        // Main Light off
+          update('2',  { isOn: true,  value: 22 });             // Thermostat 22°C
+          update('3',  { isOn: true  });                        // Front Door locked
+          update('4',  { isOn: true  });                        // Front Yard Cam on
+          update('5',  { isOn: true,  value: 20 });             // Kitchen Light dim at 20%
+          update('6',  { isOn: false });                        // Bedroom Lock unlocked (relaxed)
+          update('11', { isOn: false });                        // Vacuum docked (quiet)
+          update('12', { isOn: true,  value: 25, mode: 'low' }); // Purifier quiet during movie
+          update('13', { isOn: false, value: 0 });              // Sprinkler off
           break;
+
         case 'Sleep':
-          update('1', { isOn: false });
-          update('5', { isOn: false });
-          update('3', { isOn: true });
-          update('6', { isOn: true });
-          update('2', { isOn: true });
-          update('4', { isOn: true });
-          update('11', { isOn: false });
-          update('10', { isOn: true });
-          update('12', { isOn: true, value: 20, mode: 'low' });
-          update('13', { isOn: false, value: 0 });
+          update('1',  { isOn: false });                        // Main Light off
+          update('2',  { isOn: true,  value: 20 });             // Thermostat sleep temp 20°C
+          update('3',  { isOn: true  });                        // Front Door locked
+          update('4',  { isOn: true  });                        // Front Yard Cam on
+          update('5',  { isOn: false });                        // Kitchen Light off
+          update('6',  { isOn: true  });                        // Bedroom Lock locked
+          update('11', { isOn: false });                        // Vacuum docked, charging
+          update('12', { isOn: true,  value: 20, mode: 'low' }); // Purifier whisper mode
+          update('13', { isOn: false, value: 0 });              // Sprinkler off
           break;
       }
       

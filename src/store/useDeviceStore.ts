@@ -132,6 +132,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       unit: '%',
       category: 'comfort',
       mode: 'auto',
+      image: require('../../assets/images/vacuum.png'),
     },
     {
       id: '12',
@@ -142,6 +143,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       unit: 'AQI',
       category: 'comfort',
       mode: 'auto',
+      image: require('../../assets/images/air_purifier.png'),
     },
     {
       id: '13',

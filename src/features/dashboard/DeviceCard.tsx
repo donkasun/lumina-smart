@@ -48,9 +48,9 @@ function getDeviceIconStyle(type: string, status: string): { iconColor: string; 
     tv:         { iconColor: '#6B7280', bg: '#F3F4F6' },
     solar:      { iconColor: '#FF7D54', bg: '#FFEDD5' },
     camera:     { iconColor: '#FF7D54', bg: '#FF7D54' },
-    vacuum:     { iconColor: isOn ? '#34D399' : '#6B7280', bg: isOn ? '#D1FAE5' : '#F3F4F6' },
+    vacuum:     { iconColor: isOn ? '#34D399' : '#6B7280', bg: isOn ? '#D1FAE5' : '#E5E7EB' },
     doorbell:   { iconColor: '#FF7D54', bg: '#FFEDD5' },
-    purifier:   { iconColor: '#3B82F6', bg: '#DBEAFE' },
+    purifier:   { iconColor: '#3B82F6', bg: '#BFDBFE' },
     sprinkler:  { iconColor: isOn ? '#3B82F6' : '#6B7280', bg: isOn ? '#DBEAFE' : '#F3F4F6' },
   };
   return map[type] ?? { iconColor: '#6B7280', bg: '#F3F4F6' };
@@ -114,6 +114,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
   const statusColor = getStatusColor(device.type, status, accent, iconColor);
   const statusLabel = getStatusLabel(device);
   const isCamera = device.type === 'camera';
+  const hasCustomIcon = (device.type === 'vacuum' || device.type === 'purifier') && device.image;
   const isActiveWithUnderglow = (device.type === 'light' && device.isOn) || device.type === 'camera';
 
   const isDark = theme === 'dark';
@@ -155,11 +156,19 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
                 isActiveWithUnderglow ? Shadows.primaryUnderglow : Shadows.card,
               ]}
             >
-              <IconSymbol
-                name={getIconName(device.type, device.isOn) as any}
-                size={20}
-                color={isCamera ? '#FFFFFF' : iconTint}
-              />
+              {hasCustomIcon && device.image ? (
+                <Image
+                  source={device.image}
+                  style={styles.customIconImage}
+                  contentFit="contain"
+                />
+              ) : (
+                <IconSymbol
+                  name={getIconName(device.type, device.isOn) as any}
+                  size={20}
+                  color={isCamera ? '#FFFFFF' : iconTint}
+                />
+              )}
             </View>
 
             {/* Camera REC badge */}
@@ -229,6 +238,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  customIconImage: {
+    width: 28,
+    height: 28,
   },
   recBadge: {
     position: 'absolute',

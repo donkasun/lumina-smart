@@ -41,7 +41,7 @@ function getDeviceIconStyle(type: string, status: string): { iconColor: string; 
   const isOn = status === 'on' || status === 'locked' || status === 'armed';
 
   const map: Record<string, { iconColor: string; bg: string }> = {
-    light:      { iconColor: isOn ? '#FFFFFF' : '#FF7D54', bg: isOn ? '#FF7D54' : '#F3F4F6' },
+    light:      { iconColor: isOn ? '#FFFFFF' : '#6B7280', bg: isOn ? '#FF7D54' : '#F3F4F6' },
     thermostat: { iconColor: '#EA580C', bg: '#FFEDD5' },
     ac:         { iconColor: '#6B7280', bg: '#F3F4F6' },
     lock:       { iconColor: status === 'locked' ? '#0D9488' : '#6B7280', bg: status === 'locked' ? '#CCFBF1' : '#F3F4F6' },

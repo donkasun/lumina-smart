@@ -13,6 +13,8 @@ interface SharedDeviceIconProps {
   surfaceColor: string;
   iconColor: string;
   customColor?: string;
+  /** Custom icon (e.g. SVG component from require('*.svg')) - used for vacuum, purifier, doorbell, sprinkler, solar */
+  customIcon?: any;
 }
 
 export const SharedDeviceIcon: React.FC<SharedDeviceIconProps> = ({
@@ -24,6 +26,7 @@ export const SharedDeviceIcon: React.FC<SharedDeviceIconProps> = ({
   surfaceColor,
   iconColor,
   customColor,
+  customIcon,
 }) => {
   const getIconName = (type: DeviceType, lockState: boolean) => {
     switch (type) {
@@ -62,6 +65,10 @@ export const SharedDeviceIcon: React.FC<SharedDeviceIconProps> = ({
     android: { elevation: isOn ? 6 : 2 },
   });
 
+  const iconSize = size * 0.48;
+  const ResolvedCustom = customIcon?.default ?? customIcon;
+  const useCustomIcon = typeof ResolvedCustom === 'function';
+
   return (
     <Animated.View
       style={[
@@ -71,11 +78,15 @@ export const SharedDeviceIcon: React.FC<SharedDeviceIconProps> = ({
       ]}
     >
       <View style={styles.iconContainer}>
-        <IconSymbol
-          name={getIconName(deviceType, isOn) as any}
-          size={size * 0.48}
-          color={iconColor}
-        />
+        {useCustomIcon ? (
+          <ResolvedCustom width={iconSize} height={iconSize} color={iconColor} />
+        ) : (
+          <IconSymbol
+            name={getIconName(deviceType, isOn) as any}
+            size={iconSize}
+            color={iconColor}
+          />
+        )}
       </View>
     </Animated.View>
   );

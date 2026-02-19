@@ -9,6 +9,8 @@ import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Device } from '@/src/store/useDeviceStore';
 import { PRIMARY } from './constants';
 
+const SolarPanelIcon = require('../../../assets/icons/solar-panel.svg').default ?? require('../../../assets/icons/solar-panel.svg');
+
 const SOLAR_DATA = [80, 75, 40, 20, 50, 70];
 const SOLAR_X_LABELS = ['06:00', '10:00', '14:00', '18:00', '22:00'];
 
@@ -73,7 +75,7 @@ export const SolarDetail: React.FC<{ device: Device }> = ({ device }) => {
         <View style={styles.solarIconWrapper}>
           <Animated.View style={[styles.solarGlow, glowStyle]} />
           <View style={styles.solarIconCircle}>
-            <IconSymbol name="solar_power" size={60} color={PRIMARY} />
+            <SolarPanelIcon width={60} height={60} color={PRIMARY} />
           </View>
         </View>
         <Text style={[styles.solarHeroLabel, { color: subtextColor }]}>Real-time Production</Text>

@@ -49,6 +49,7 @@ export const DeviceDetailHeader: React.FC<DeviceDetailHeaderProps> = ({ device }
           surfaceColor={surfaceColor}
           iconColor="white"
           customColor={device.color}
+          customIcon={device.image}
         />
 
         <Animated.View entering={FadeIn.delay(150).duration(400)} style={styles.textContainer}>

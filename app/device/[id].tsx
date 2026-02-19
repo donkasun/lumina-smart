@@ -13,8 +13,6 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TYPES_WITH_CUSTOM_HERO: DeviceType[] = ['light', 'thermostat', 'camera', 'solar', 'vacuum', 'doorbell', 'purifier'];
-/** Types that hide the header title (vacuum keeps its title) */
-const TYPES_WITHOUT_HEADER_TITLE: DeviceType[] = ['light', 'thermostat', 'camera', 'solar'];
 
 const FLOATING_BAR_HEIGHT = 80;
 
@@ -68,7 +66,7 @@ export default function DeviceDetailScreen() {
             <Ionicons name="arrow-back" size={18} color={textColor} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: textColor }]}>
-            {TYPES_WITHOUT_HEADER_TITLE.includes(device.type) ? '' : device.name}
+            {device.name}
           </Text>
           <View style={{ width: 40 }} />
         </View>

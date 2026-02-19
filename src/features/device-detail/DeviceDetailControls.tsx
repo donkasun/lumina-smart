@@ -1,15 +1,16 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import { Typography } from '@/constants/theme';
 import { AnimatedToggle } from '@/src/components/controls/AnimatedToggle';
 import { LockControls } from '@/src/components/controls/LockControls';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Device, useDeviceStore } from '@/src/store/useDeviceStore';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { CameraDetail } from './CameraDetail';
 import { DoorbellDetail } from './DoorbellDetail';
 import { LightDetail } from './LightDetail';
 import { PurifierDetail } from './PurifierDetail';
 import { SolarDetail } from './SolarDetail';
+import { SprinklerDetail } from './SprinklerDetail';
 import { ThermostatDetail } from './ThermostatDetail';
 import { VacuumDetail } from './VacuumDetail';
 
@@ -58,6 +59,9 @@ export const DeviceDetailControls: React.FC<DeviceDetailControlsProps> = ({ devi
 
     case 'solar':
       return <SolarDetail device={device} />;
+
+    case 'sprinkler':
+      return <SprinklerDetail device={device} />;
 
     case 'vacuum':
       return <VacuumDetail device={device} />;

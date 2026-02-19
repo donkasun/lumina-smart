@@ -5,14 +5,7 @@ import { Device } from '@/src/store/useDeviceStore';
 import React from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-
-const EXTERNAL_LOCK_GREEN = '#10B981';
-const INTERNAL_LOCK_ORANGE = '#FF9500';
-
-function isExternalDoor(name: string): boolean {
-  const n = name.toLowerCase();
-  return /door|front|back|main|entrance|gate|entry/.test(n);
-}
+import { EXTERNAL_LOCK_GREEN, INTERNAL_LOCK_ORANGE, isExternalDoor } from './lock';
 
 interface DeviceDetailHeaderProps {
   device: Device;

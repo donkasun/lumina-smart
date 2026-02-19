@@ -12,12 +12,12 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import {
+  EXTERNAL_LOCK_GREEN,
+  INTERNAL_LOCK_ORANGE,
+  isExternalDoor,
+} from '../device-detail/lock';
 import { Device } from '../../store/useDeviceStore';
-
-function isExternalDoor(name: string): boolean {
-  const n = name.toLowerCase();
-  return /door|front|back|main|entrance|gate|entry/.test(n);
-}
 
 const { width: windowWidth } = Dimensions.get('window');
 // 16pt × 2 page padding, 12pt × 2 gaps between 3 columns
@@ -46,7 +46,7 @@ function getDeviceIconStyle(type: string, status: string, device?: Device): { ic
   const isOn = status === 'on' || status === 'locked' || status === 'armed';
   const isMainDoor = type === 'lock' && device && isExternalDoor(device.name);
   const lockLocked = type === 'lock' && status === 'locked';
-  const lockIconColor = lockLocked ? (isMainDoor ? '#10B981' : '#FF9500') : '#6B7280';
+  const lockIconColor = lockLocked ? (isMainDoor ? EXTERNAL_LOCK_GREEN : INTERNAL_LOCK_ORANGE) : '#6B7280';
   const lockBg = lockLocked ? (isMainDoor ? '#D1FAE5' : '#FFEDD5') : '#F3F4F6';
 
   const map: Record<string, { iconColor: string; bg: string }> = {
@@ -70,7 +70,7 @@ function getDeviceIconStyle(type: string, status: string, device?: Device): { ic
 
 function getStatusColor(type: string, status: string, accent: string, iconColor: string, device?: Device): string {
   if (status === 'on')     return accent;
-  if (status === 'locked') return type === 'lock' && device && !isExternalDoor(device.name) ? '#FF9500' : '#10B981';
+  if (status === 'locked') return type === 'lock' && device && !isExternalDoor(device.name) ? INTERNAL_LOCK_ORANGE : EXTERNAL_LOCK_GREEN;
   if (status === 'armed')  return '#DC2626';
   return iconColor;
 }

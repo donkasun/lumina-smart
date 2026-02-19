@@ -28,6 +28,9 @@ export interface Device {
   lastUpdated?: number; // timestamp of last WS update
   category?: DeviceCategory;
   mode?: string; // vacuum: 'auto'|'spot'|'edge'|'room'; purifier: 'auto'|'low'|'medium'|'high'
+  brand?: string;
+  model?: string;
+  batteryLevel?: number; // 0–100, for purifier/vacuum/etc.
 }
 
 export type Scenario = "Morning" | "Away" | "Work" | "Movie" | "Sleep";
@@ -183,6 +186,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       unit: "AQI",
       category: "comfort",
       mode: "auto",
+      batteryLevel: 85,
       image: require("../../assets/icons/air_purifier.svg"),
     },
     {

@@ -16,7 +16,11 @@ const CY = 150;
 const R = 100;
 const STROKE = 10;
 const NEEDLE_LENGTH = 82;
+// ViewBox cropped to arc bounds (y 50–150) to remove empty space above the gauge
+const VIEWBOX_WIDTH = 280;
 const VIEWBOX_HEIGHT = 160;
+const VIEWBOX_Y_MIN = 50; // top of arc (CY - R)
+const VIEWBOX_CONTENT_HEIGHT = 100; // arc height (R)
 
 const polarToCartesian = (cx: number, cy: number, r: number, angleDeg: number) => {
   const rad = (angleDeg * Math.PI) / 180;
@@ -90,7 +94,12 @@ export const AqiGauge: React.FC<AqiGaugeProps> = ({ aqi }) => {
   return (
     <View style={styles.container}>
       <View style={styles.gaugeSvgWrap}>
-        <Svg width="100%" height="100%" viewBox={`0 0 280 ${VIEWBOX_HEIGHT}`} preserveAspectRatio="xMidYMax meet">
+        <Svg
+          width="100%"
+          height="100%"
+          viewBox={`0 ${VIEWBOX_Y_MIN} ${VIEWBOX_WIDTH} ${VIEWBOX_CONTENT_HEIGHT}`}
+          preserveAspectRatio="xMidYMax meet"
+        >
           {/* Background track */}
           <Path d={TRACK_PATH} stroke={borderColor} strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
           {/* Color segments */}
@@ -133,12 +142,10 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     alignItems: 'center',
-    backgroundColor: 'red',
   },
   gaugeSvgWrap: {
     width: '100%',
     height: VIEWBOX_HEIGHT,
-    backgroundColor: 'blue',
   },
   labelContainer: {
     alignItems: 'center',

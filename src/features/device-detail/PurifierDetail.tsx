@@ -4,8 +4,8 @@ import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { AnimatedToggle } from '@/src/components/controls/AnimatedToggle';
 import { GlassCard } from '@/src/components/ui/GlassCard';
-import { haptics } from '@/src/utils/haptics';
 import { Device, useDeviceStore } from '@/src/store/useDeviceStore';
+import { haptics } from '@/src/utils/haptics';
 import React, { useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Path, Svg } from 'react-native-svg';
@@ -91,9 +91,29 @@ export const PurifierDetail: React.FC<PurifierDetailProps> = ({ device }) => {
             <Image source={purifierImage} style={styles.statusIcon} resizeMode="contain" />
           )}
         </View>
-        <Text style={[styles.statusLabel, { color: device.isOn ? accentColor : subtextColor }]}>
-          {device.isOn ? 'ON' : 'OFF'}
-        </Text>
+        <View style={styles.brandModelWrap}>
+          <Text style={[styles.brandName, { color: textColor }]} numberOfLines={1}>
+            {device.brand ?? 'Lumina'}
+          </Text>
+          <Text style={[styles.modelLine, { color: subtextColor }]} numberOfLines={1}>
+            {device.model ?? device.name}
+            {' · '}
+            <Text style={styles.fanSpeedInline}>{SPEED_LABELS[speed]}</Text>
+          </Text>
+          {device.batteryLevel != null && (
+            <View style={styles.batteryLine}>
+              <Text style={[styles.batteryPercent, { color: textColor }]}>
+                {device.batteryLevel}%
+              </Text>
+              <IconSymbol
+                name="battery.75percent"
+                size={16}
+                color={subtextColor}
+                style={styles.batteryIcon}
+              />
+            </View>
+          )}
+        </View>
         <AnimatedToggle value={device.isOn} onChange={() => toggleDevice(device.id)} />
       </GlassCard>
 
@@ -210,12 +230,37 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  statusLabel: {
-    fontSize: 14,
+  brandModelWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    marginLeft: 12,
+  },
+  brandName: {
+    fontSize: 16,
     fontFamily: Typography.semiBold,
     fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  },
+  modelLine: {
+    fontSize: 13,
+    fontFamily: Typography.medium,
+    marginTop: 2,
+  },
+  fanSpeedInline: {
+    fontFamily: Typography.semiBold,
+  },
+  batteryLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 4,
+  },
+  batteryPercent: {
+    fontSize: 13,
+    fontFamily: Typography.semiBold,
+  },
+  batteryIcon: {
+    marginLeft: 0,
   },
   heroContainer: {
     width: '100%',

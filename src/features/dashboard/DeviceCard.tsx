@@ -98,7 +98,8 @@ function areEqual(prev: DeviceCardProps, next: DeviceCardProps): boolean {
     a.value === b.value &&
     a.type === b.type &&
     a.name === b.name &&
-    (a as any).category === (b as any).category
+    (a as any).category === (b as any).category &&
+    (a as any).batteryLevel === (b as any).batteryLevel
   );
 }
 
@@ -218,6 +219,11 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
               <Text style={[styles.status, { color: isCamera ? 'rgba(255,255,255,0.8)' : statusColor }]}>
                 {statusLabel}
               </Text>
+              {device.type === 'purifier' && device.batteryLevel != null && device.isOn && (
+                <Text style={[styles.status, styles.statusSecondary, { color: isCamera ? 'rgba(255,255,255,0.8)' : statusColor }]}>
+                  {' · '}{device.batteryLevel}%
+                </Text>
+              )}
               {device.type === 'light' && device.isOn && (
                 <>
                   <View
@@ -326,6 +332,9 @@ const styles = StyleSheet.create({
     fontFamily: Typography.bold,
     textTransform: 'uppercase',
     textAlign: 'center',
+  },
+  statusSecondary: {
+    textTransform: 'none',
   },
   lightColorDot: {
     width: 6,

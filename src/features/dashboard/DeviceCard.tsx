@@ -49,12 +49,12 @@ function getDeviceIconStyle(type: string, status: string): { iconColor: string; 
     alarm:      { iconColor: status === 'armed' ? '#DC2626' : '#6B7280', bg: status === 'armed' ? '#FEE2E2' : '#F3F4F6' },
     speaker:    { iconColor: isOn ? '#9333EA' : '#6B7280', bg: isOn ? '#F3E8FF' : '#F3F4F6' },
     tv:         { iconColor: isOn ? '#3B82F6' : '#6B7280', bg: isOn ? '#BFDBFE' : '#F3F4F6' },
-    solar:      { iconColor: '#FF7D54', bg: '#FFEDD5' },
+    solar:      { iconColor: isOn ? '#F59E0B' : '#6B7280', bg: isOn ? '#FEF3C7' : '#F3F4F6' },
     camera:     { iconColor: '#FF7D54', bg: '#FF7D54' },
     vacuum:     { iconColor: isOn ? '#34D399' : '#6B7280', bg: isOn ? '#D1FAE5' : '#F3F4F6' },
-    doorbell:   { iconColor: '#FF7D54', bg: '#FFEDD5' },
+    doorbell:   { iconColor: isOn ? '#FF7D54' : '#6B7280', bg: isOn ? '#FFEDD5' : '#F3F4F6' },
     purifier:   { iconColor: isOn ? '#3B82F6' : '#6B7280', bg: isOn ? '#BFDBFE' : '#F3F4F6' },
-    sprinkler:  { iconColor: isOn ? '#EA580C' : '#6B7280', bg: isOn ? '#DBEAFE' : '#F3F4F6' },
+    sprinkler:  { iconColor: isOn ? '#0D9488' : '#6B7280', bg: isOn ? '#CCFBF1' : '#F3F4F6' },
   };
   return map[type] ?? { iconColor: '#6B7280', bg: '#F3F4F6' };
 }
@@ -79,6 +79,7 @@ function getStatusLabel(device: Device): string {
   if (device.type === 'doorbell')  return device.isOn ? 'LIVE' : 'OFF';
   if (device.type === 'purifier')  return device.isOn ? `AQI ${device.value}` : 'OFF';
   if (device.type === 'sprinkler') return device.isOn ? 'WATERING' : 'IDLE';
+  if (device.type === 'solar') return device.isOn ? 'GENERATING' : 'IDLE';
   if (device.type === 'tv' || device.type === 'speaker') return device.isOn ? 'ACTIVE' : 'OFF';
   return device.isOn ? 'ON' : 'OFF';
 }
@@ -124,7 +125,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
   const statusColor = getStatusColor(device.type, status, accent, iconColor);
   const statusLabel = getStatusLabel(device);
   const isCamera = device.type === 'camera';
-  const hasCustomIcon = (device.type === 'vacuum' || device.type === 'purifier') && device.image;
+  const hasCustomIcon = (device.type === 'vacuum' || device.type === 'purifier' || device.type === 'doorbell' || device.type === 'sprinkler' || device.type === 'solar') && device.image;
   const isActiveWithUnderglow = (device.type === 'light' && device.isOn) || device.type === 'camera';
 
   const isDark = theme === 'dark';
@@ -167,11 +168,26 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
               ]}
             >
               {hasCustomIcon && device.image ? (
-                <Image
-                  source={device.image}
-                  style={[styles.customIconImage, { tintColor: iconTint }]}
-                  contentFit="contain"
-                />
+                (() => {
+                  const Resolved = device.image?.default ?? device.image;
+                  if (typeof Resolved === 'function') {
+                    const IconComponent = Resolved;
+                    return (
+                      <IconComponent
+                        width={28}
+                        height={28}
+                        color={iconTint}
+                      />
+                    );
+                  }
+                  return (
+                    <Image
+                      source={device.image}
+                      style={[styles.customIconImage, { tintColor: iconTint }]}
+                      contentFit="contain"
+                    />
+                  );
+                })()
               ) : (
                 <IconSymbol
                   name={getIconName(device.type, device.isOn) as any}

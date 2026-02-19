@@ -77,13 +77,19 @@ export const PurifierDetail: React.FC<PurifierDetailProps> = ({ device }) => {
   const borderColor = useThemeColor({}, 'border');
   const aqi = device.value;
 
-  const purifierImage = device.image ?? require('../../../assets/images/air_purifier.png');
+  const purifierImage = device.image ?? require('../../../assets/icons/air_purifier.svg');
+  const iconColor = device.isOn ? accentColor : subtextColor;
+  const IconComponent = purifierImage?.default ?? purifierImage;
 
   return (
     <View style={styles.section}>
       <GlassCard style={styles.statusCard}>
         <View style={styles.statusIconWrap}>
-          <Image source={purifierImage} style={styles.statusIcon} resizeMode="contain" />
+          {typeof IconComponent === 'function' ? (
+            <IconComponent width={40} height={40} color={iconColor} />
+          ) : (
+            <Image source={purifierImage} style={styles.statusIcon} resizeMode="contain" />
+          )}
         </View>
         <Text style={[styles.statusLabel, { color: device.isOn ? accentColor : subtextColor }]}>
           {device.isOn ? 'ON' : 'OFF'}

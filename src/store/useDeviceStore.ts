@@ -134,6 +134,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       value: 1452,
       unit: "W",
       category: "comfort",
+      image: require("../../assets/icons/solar-panel.svg"),
     },
     {
       id: "8",
@@ -160,6 +161,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       isOn: true,
       value: 3,
       category: "security",
+      image: require("../../assets/icons/doorbell.svg"),
     },
     {
       id: "11",
@@ -170,7 +172,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       unit: "%",
       category: "comfort",
       mode: "auto",
-      image: require("../../assets/images/vacuum.png"),
+      image: require("../../assets/icons/vacuum.svg"),
     },
     {
       id: "12",
@@ -181,7 +183,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       unit: "AQI",
       category: "comfort",
       mode: "auto",
-      image: require("../../assets/images/air_purifier.png"),
+      image: require("../../assets/icons/air_purifier.svg"),
     },
     {
       id: "13",
@@ -190,6 +192,7 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       isOn: false,
       value: 0,
       category: "comfort",
+      image: require("../../assets/icons/sprinkler.svg"),
     },
     {
       id: "14",

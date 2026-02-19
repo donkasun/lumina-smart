@@ -124,7 +124,6 @@ export function SolarChartCard({ cardBg, textColor, subtextColor }: SolarChartCa
           initialSpacing={12}
           endSpacing={12}
           hideDataPoints
-          hideRules
           noOfSections={4}
           yAxisTextStyle={{ fontSize: 9, color: subtextColor }}
           xAxisLabelTexts={X_AXIS_LABELS}

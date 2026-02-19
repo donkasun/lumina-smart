@@ -159,11 +159,17 @@ export const CameraCarousel = memo(function CameraCarousel() {
 
   useEffect(() => {
     if (cameras.length <= 1) return;
-    const id = setInterval(() => {
-      const next = (activeIndexRef.current + 1) % cameras.length;
-      scrollTo(next);
-    }, 3500);
-    return () => clearInterval(id);
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    const startTimeout = setTimeout(() => {
+      intervalId = setInterval(() => {
+        const next = (activeIndexRef.current + 1) % cameras.length;
+        scrollTo(next);
+      }, 3500);
+    }, 2000);
+    return () => {
+      clearTimeout(startTimeout);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [cameras.length, scrollTo]);
 
   if (cameras.length === 0) return null;

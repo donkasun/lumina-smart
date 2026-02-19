@@ -1,3 +1,5 @@
+import { Typography } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
@@ -8,8 +10,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Line, Path, Svg } from 'react-native-svg';
-import { Typography } from '@/constants/theme';
-import { useThemeColor } from '@/hooks/use-theme-color';
 
 const CX = 140;
 const CY = 150;
@@ -133,16 +133,17 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     alignItems: 'center',
+    backgroundColor: 'red',
   },
   gaugeSvgWrap: {
     width: '100%',
     height: VIEWBOX_HEIGHT,
+    backgroundColor: 'blue',
   },
   labelContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 16,
-    gap: 4,
+    gap: 2,
   },
   aqiNumber: {
     fontSize: 48,

@@ -89,7 +89,7 @@ export default function DeviceDetailScreen() {
 
         {isDoorbell && (
           <View style={[styles.floatingBar, { paddingBottom: insets.bottom + 12, paddingHorizontal: 16 }]}>
-            <View style={styles.floatingBarCapsule}>
+            <View style={[styles.floatingBarCapsule, { backgroundColor: surfaceColor }]}>
               <DoorbellBottomBar />
             </View>
           </View>
@@ -119,7 +119,6 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   floatingBarCapsule: {
-    backgroundColor: '#FFFFFF',
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 999,

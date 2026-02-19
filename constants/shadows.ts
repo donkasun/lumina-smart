@@ -26,6 +26,13 @@ export const Shadows = {
     android: { elevation: 4 },
   }) ?? {},
 
+  // Snapshot/Record-style action buttons (subtle depth)
+  actionButton: Platform.select({
+    ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
+           shadowOpacity: 0.12, shadowRadius: 8 },
+    android: { elevation: 3 },
+  }) ?? {},
+
   // Scene buttons, device icons, action buttons with primary bg (Level 3)
   primaryUnderglow: Platform.select({
     ios: { shadowColor: '#FF7D54', shadowOffset: { width: 0, height: 6 },

@@ -30,8 +30,12 @@ export const SprinklerDetail: React.FC<SprinklerDetailProps> = ({ device }) => {
   const subtextColor = useThemeColor({}, 'icon');
   const surfaceColor = useThemeColor({}, 'surface');
   const borderColor = useThemeColor({}, 'border');
+  const statusOnColor = useThemeColor({}, 'statusOn');
+  const statusInfoColor = useThemeColor({}, 'statusInfo');
+  const chartBarBg = useThemeColor({}, 'chartBar');
   const cardBg = surfaceColor;
   const iconColor = device.isOn ? '#0D9488' : subtextColor;
+  const deviceIconWrapBg = device.isOn ? 'rgba(13,148,136,0.15)' : `${subtextColor}20`;
 
   const SprinklerImage = device.image ?? SprinklerIcon;
   const IconComponent = SprinklerImage?.default ?? SprinklerImage;
@@ -40,7 +44,7 @@ export const SprinklerDetail: React.FC<SprinklerDetailProps> = ({ device }) => {
     <View style={styles.section}>
       {/* Top device card with on/off toggler (like PurifierDetail) */}
       <GlassCard style={[styles.deviceCard, { backgroundColor: cardBg }]}>
-        <View style={[styles.deviceIconWrap, { backgroundColor: device.isOn ? 'rgba(13,148,136,0.15)' : 'rgba(107,114,128,0.12)' }]}>
+        <View style={[styles.deviceIconWrap, { backgroundColor: deviceIconWrapBg }]}>
           {typeof IconComponent === 'function' ? (
             <IconComponent width={40} height={40} color={iconColor} />
           ) : (
@@ -61,7 +65,7 @@ export const SprinklerDetail: React.FC<SprinklerDetailProps> = ({ device }) => {
       {/* Rain delay status */}
       <GlassCard style={[styles.statusCard, { backgroundColor: cardBg }]}>
         <View style={styles.statusIconCircle}>
-          <IconSymbol name="drop.fill" size={48} color="#3B82F6" />
+          <IconSymbol name="drop.fill" size={48} color={statusInfoColor} />
         </View>
         <Text style={[styles.statusTitle, { color: textColor }]}>Rain Delay Active</Text>
         <Text style={[styles.statusSubtitle, { color: subtextColor }]}>
@@ -102,15 +106,15 @@ export const SprinklerDetail: React.FC<SprinklerDetailProps> = ({ device }) => {
             <IconSymbol name="chevron.right" size={14} color={subtextColor} />
           </View>
         </View>
-        <Text style={styles.waterChange}>+12% vs last week</Text>
+        <Text style={[styles.waterChange, { color: statusOnColor }]}>+12% vs last week</Text>
         <View style={styles.chartPlaceholder}>
-          <View style={[styles.chartBar, { height: '40%' }]} />
-          <View style={[styles.chartBar, { height: '65%' }]} />
-          <View style={[styles.chartBar, { height: '55%' }]} />
-          <View style={[styles.chartBar, { height: '80%', backgroundColor: '#3B82F6' }]} />
-          <View style={[styles.chartBar, { height: '70%' }]} />
-          <View style={[styles.chartBar, { height: '50%' }]} />
-          <View style={[styles.chartBar, { height: '45%' }]} />
+          <View style={[styles.chartBar, { height: '40%', backgroundColor: chartBarBg }]} />
+          <View style={[styles.chartBar, { height: '65%', backgroundColor: chartBarBg }]} />
+          <View style={[styles.chartBar, { height: '55%', backgroundColor: chartBarBg }]} />
+          <View style={[styles.chartBar, { height: '80%', backgroundColor: statusInfoColor }]} />
+          <View style={[styles.chartBar, { height: '70%', backgroundColor: chartBarBg }]} />
+          <View style={[styles.chartBar, { height: '50%', backgroundColor: chartBarBg }]} />
+          <View style={[styles.chartBar, { height: '45%', backgroundColor: chartBarBg }]} />
         </View>
         <View style={styles.weekdayRow}>
           {WEEKDAY_LABELS.map((d, i) => (
@@ -255,7 +259,6 @@ const styles = StyleSheet.create({
   waterChange: {
     fontSize: 13,
     fontFamily: Typography.semiBold,
-    color: '#10B981',
   },
   chartPlaceholder: {
     flexDirection: 'row',
@@ -267,7 +270,6 @@ const styles = StyleSheet.create({
   },
   chartBar: {
     flex: 1,
-    backgroundColor: 'rgba(148,163,184,0.35)',
     borderRadius: 4,
     minHeight: 8,
   },

@@ -16,6 +16,10 @@ const IOS_SYMBOL_MAP: Partial<Record<string, SymbolViewProps['name']>> = {
   'power_settings_new': 'power',
   'verified': 'checkmark.shield.fill',
   'check': 'checkmark',
+  'photo_camera': 'camera.fill',
+  'notification_important': 'bell.badge.fill',
+  'mic': 'mic.fill',
+  'video.fill': 'video.fill',
 };
 
 export function IconSymbol({

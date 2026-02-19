@@ -6,6 +6,14 @@ import React from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
+const EXTERNAL_LOCK_GREEN = '#10B981';
+const INTERNAL_LOCK_ORANGE = '#FF9500';
+
+function isExternalDoor(name: string): boolean {
+  const n = name.toLowerCase();
+  return /door|front|back|main|entrance|gate|entry/.test(n);
+}
+
 interface DeviceDetailHeaderProps {
   device: Device;
 }
@@ -16,9 +24,16 @@ export const DeviceDetailHeader: React.FC<DeviceDetailHeaderProps> = ({ device }
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'icon');
 
+  const isLockActive = device.type === 'lock' ? device.value === 1 : device.isOn;
+  const lockAccent = device.type === 'lock' && device.value === 1
+    ? (isExternalDoor(device.name) ? EXTERNAL_LOCK_GREEN : INTERNAL_LOCK_ORANGE)
+    : undefined;
+  const statusColor = lockAccent ?? (isLockActive ? accentColor : subtextColor);
+  const iconCustomColor = device.type === 'lock' ? lockAccent : device.color;
+
   const getStatusText = () => {
     if (device.type === 'camera') return 'LIVE FEED';
-    if (device.type === 'lock') return device.isOn ? 'LOCKED' : 'UNLOCKED';
+    if (device.type === 'lock') return device.value === 1 ? 'LOCKED' : 'UNLOCKED';
     if (device.type === 'tv' || device.type === 'speaker') return device.isOn ? 'ACTIVE' : 'STANDBY';
     return device.isOn ? 'ON' : 'OFF';
   };
@@ -43,18 +58,18 @@ export const DeviceDetailHeader: React.FC<DeviceDetailHeaderProps> = ({ device }
         <SharedDeviceIcon
           deviceId={device.id}
           deviceType={device.type}
-          isOn={device.isOn}
+          isOn={device.type === 'lock' ? device.value === 1 : device.isOn}
           size={120}
-          accentColor={accentColor}
+          accentColor={lockAccent ?? accentColor}
           surfaceColor={surfaceColor}
           iconColor="white"
-          customColor={device.color}
+          customColor={iconCustomColor}
           customIcon={device.image}
         />
 
         <Animated.View entering={FadeIn.delay(150).duration(400)} style={styles.textContainer}>
           <Text style={[styles.deviceName, { color: textColor }]}>{device.name}</Text>
-          <Text style={[styles.deviceStatus, { color: device.isOn ? accentColor : subtextColor }]}>
+          <Text style={[styles.deviceStatus, { color: statusColor }]}>
             {getStatusText()}
             {device.isOn && device.value !== undefined && device.unit && ` • ${device.value}${device.unit}`}
           </Text>

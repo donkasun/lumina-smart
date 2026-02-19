@@ -58,6 +58,8 @@ interface DeviceState {
   devices: Device[];
   toggleDevice: (id: string) => void;
   setDeviceOn: (id: string, isOn: boolean) => void;
+  /** For lock type: set locked (true) or unlocked (false). Uses value 1/0. */
+  setLocked: (id: string, locked: boolean) => void;
   updateDeviceValue: (id: string, value: number) => void;
   updateDeviceColor: (id: string, color: string) => void;
   updateDeviceMode: (id: string, mode: string) => void;
@@ -98,9 +100,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       id: "3",
       name: "Front Door",
       type: "lock",
-      isOn: true, // true means locked
-      value: 1,
+      isOn: true, // power on/off
+      value: 1, // 1 = locked, 0 = unlocked
       category: "security",
+      image: require("../../assets/icons/door-lock.svg"),
     },
     {
       id: "4",
@@ -125,9 +128,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
       id: "6",
       name: "Bedroom Lock",
       type: "lock",
-      isOn: false, // false means unlocked
-      value: 0,
+      isOn: true, // power on/off
+      value: 0, // 1 = locked, 0 = unlocked
       category: "security",
+      image: require("../../assets/icons/door-lock.svg"),
     },
     {
       id: "7",
@@ -227,6 +231,12 @@ export const useDeviceStore = create<DeviceState>((set) => ({
         d.id === id ? { ...d, isOn } : d,
       ),
     })),
+  setLocked: (id, locked) =>
+    set((state) => ({
+      devices: state.devices.map((d) =>
+        d.id === id && d.type === "lock" ? { ...d, value: locked ? 1 : 0 } : d,
+      ),
+    })),
   updateDeviceValue: (id, value) =>
     set((state) => ({
       devices: state.devices.map((d) => (d.id === id ? { ...d, value } : d)),
@@ -268,10 +278,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
         case "Morning":
           update(D.MAIN_LIGHT, { isOn: true, value: 60 }); // Main Light on at 60%
           update(D.THERMOSTAT, { isOn: true, value: 22 }); // Thermostat 22°C (heating zone)
-          update(D.FRONT_DOOR, { isOn: true }); // Front Door locked
+          update(D.FRONT_DOOR, { isOn: true, value: 1 }); // Front Door locked
           update(D.FRONT_YARD_CAM, { isOn: true }); // Front Yard Cam on
           update(D.KITCHEN_LIGHT, { isOn: true, value: 70 }); // Kitchen Light on at 70%
-          update(D.BEDROOM_LOCK, { isOn: false }); // Bedroom Lock unlocked
+          update(D.BEDROOM_LOCK, { isOn: true, value: 0 }); // Bedroom Lock unlocked
           update(D.VACUUM, { isOn: false }); // Vacuum docked (quiet morning)
           update(D.PURIFIER, { isOn: true, value: 42, mode: "auto" }); // Purifier auto
           update(D.SPRINKLER, { isOn: true, value: 1 }); // Sprinkler zone 1 (Front Lawn)
@@ -281,10 +291,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
         case "Away":
           update(D.MAIN_LIGHT, { isOn: false }); // Main Light off
           update(D.THERMOSTAT, { isOn: true, value: 18 }); // Thermostat eco 18°C (cooling zone)
-          update(D.FRONT_DOOR, { isOn: true }); // Front Door locked
+          update(D.FRONT_DOOR, { isOn: true, value: 1 }); // Front Door locked
           update(D.FRONT_YARD_CAM, { isOn: true }); // Front Yard Cam on
           update(D.KITCHEN_LIGHT, { isOn: false }); // Kitchen Light off
-          update(D.BEDROOM_LOCK, { isOn: true }); // Bedroom Lock locked
+          update(D.BEDROOM_LOCK, { isOn: true, value: 1 }); // Bedroom Lock locked
           update(D.VACUUM, { isOn: true }); // Vacuum cleans while away
           update(D.PURIFIER, { isOn: false }); // Purifier off (nobody home)
           update(D.SPRINKLER, { isOn: false, value: 0 }); // Sprinkler off
@@ -294,10 +304,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
         case "Work":
           update(D.MAIN_LIGHT, { isOn: true, value: 80 }); // Main Light bright for focus
           update(D.THERMOSTAT, { isOn: true, value: 21 }); // Thermostat 21°C (heating zone)
-          update(D.FRONT_DOOR, { isOn: true }); // Front Door locked
+          update(D.FRONT_DOOR, { isOn: true, value: 1 }); // Front Door locked
           update(D.FRONT_YARD_CAM, { isOn: true }); // Front Yard Cam on
           update(D.KITCHEN_LIGHT, { isOn: false }); // Kitchen Light off
-          update(D.BEDROOM_LOCK, { isOn: true }); // Bedroom Lock locked
+          update(D.BEDROOM_LOCK, { isOn: true, value: 1 }); // Bedroom Lock locked
           update(D.VACUUM, { isOn: false }); // Vacuum docked (do not disturb)
           update(D.PURIFIER, { isOn: true, value: 35, mode: "low" }); // Purifier quiet
           update(D.SPRINKLER, { isOn: false, value: 0 }); // Sprinkler off
@@ -307,10 +317,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
         case "Movie":
           update(D.MAIN_LIGHT, { isOn: false }); // Main Light off
           update(D.THERMOSTAT, { isOn: true, value: 22 }); // Thermostat 22°C (heating zone)
-          update(D.FRONT_DOOR, { isOn: true }); // Front Door locked
+          update(D.FRONT_DOOR, { isOn: true, value: 1 }); // Front Door locked
           update(D.FRONT_YARD_CAM, { isOn: true }); // Front Yard Cam on
           update(D.KITCHEN_LIGHT, { isOn: true, value: 20 }); // Kitchen Light dim at 20%
-          update(D.BEDROOM_LOCK, { isOn: false }); // Bedroom Lock unlocked (relaxed)
+          update(D.BEDROOM_LOCK, { isOn: true, value: 0 }); // Bedroom Lock unlocked (relaxed)
           update(D.VACUUM, { isOn: false }); // Vacuum docked (quiet)
           update(D.PURIFIER, { isOn: true, value: 25, mode: "low" }); // Purifier quiet
           update(D.SPRINKLER, { isOn: false, value: 0 }); // Sprinkler off
@@ -320,10 +330,10 @@ export const useDeviceStore = create<DeviceState>((set) => ({
         case "Sleep":
           update(D.MAIN_LIGHT, { isOn: false }); // Main Light off
           update(D.THERMOSTAT, { isOn: true, value: 20 }); // Thermostat sleep 20°C (cooling zone)
-          update(D.FRONT_DOOR, { isOn: true }); // Front Door locked
+          update(D.FRONT_DOOR, { isOn: true, value: 1 }); // Front Door locked
           update(D.FRONT_YARD_CAM, { isOn: false }); // Front Yard Cam off (night)
           update(D.KITCHEN_LIGHT, { isOn: false }); // Kitchen Light off
-          update(D.BEDROOM_LOCK, { isOn: true }); // Bedroom Lock locked
+          update(D.BEDROOM_LOCK, { isOn: true, value: 1 }); // Bedroom Lock locked
           update(D.VACUUM, { isOn: false }); // Vacuum docked, charging
           update(D.PURIFIER, { isOn: true, value: 20, mode: "low" }); // Purifier whisper
           update(D.SPRINKLER, { isOn: false, value: 0 }); // Sprinkler off

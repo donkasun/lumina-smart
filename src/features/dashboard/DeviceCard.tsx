@@ -14,6 +14,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Device } from '../../store/useDeviceStore';
 
+function isExternalDoor(name: string): boolean {
+  const n = name.toLowerCase();
+  return /door|front|back|main|entrance|gate|entry/.test(n);
+}
+
 const { width: windowWidth } = Dimensions.get('window');
 // 16pt × 2 page padding, 12pt × 2 gaps between 3 columns
 const CARD_WIDTH = (windowWidth - 32 - 24) / 3;
@@ -37,14 +42,18 @@ function getIconName(type: string, isOn: boolean): string {
   }
 }
 
-function getDeviceIconStyle(type: string, status: string): { iconColor: string; bg: string } {
+function getDeviceIconStyle(type: string, status: string, device?: Device): { iconColor: string; bg: string } {
   const isOn = status === 'on' || status === 'locked' || status === 'armed';
+  const isMainDoor = type === 'lock' && device && isExternalDoor(device.name);
+  const lockLocked = type === 'lock' && status === 'locked';
+  const lockIconColor = lockLocked ? (isMainDoor ? '#10B981' : '#FF9500') : '#6B7280';
+  const lockBg = lockLocked ? (isMainDoor ? '#D1FAE5' : '#FFEDD5') : '#F3F4F6';
 
   const map: Record<string, { iconColor: string; bg: string }> = {
     light:      { iconColor: isOn ? '#FFFFFF' : '#6B7280', bg: isOn ? '#FF7D54' : '#F3F4F6' },
     thermostat: { iconColor: '#EA580C', bg: '#FFEDD5' },
     ac:         { iconColor: '#6B7280', bg: '#F3F4F6' },
-    lock:       { iconColor: status === 'locked' ? '#0D9488' : '#6B7280', bg: status === 'locked' ? '#CCFBF1' : '#F3F4F6' },
+    lock:       { iconColor: lockIconColor, bg: lockBg },
     garage:     { iconColor: '#6B7280', bg: '#F3F4F6' },
     alarm:      { iconColor: status === 'armed' ? '#DC2626' : '#6B7280', bg: status === 'armed' ? '#FEE2E2' : '#F3F4F6' },
     speaker:    { iconColor: isOn ? '#9333EA' : '#6B7280', bg: isOn ? '#F3E8FF' : '#F3F4F6' },
@@ -59,16 +68,16 @@ function getDeviceIconStyle(type: string, status: string): { iconColor: string; 
   return map[type] ?? { iconColor: '#6B7280', bg: '#F3F4F6' };
 }
 
-function getStatusColor(type: string, status: string, accent: string, iconColor: string): string {
+function getStatusColor(type: string, status: string, accent: string, iconColor: string, device?: Device): string {
   if (status === 'on')     return accent;
-  if (status === 'locked') return '#0D9488';
+  if (status === 'locked') return type === 'lock' && device && !isExternalDoor(device.name) ? '#FF9500' : '#10B981';
   if (status === 'armed')  return '#DC2626';
   return iconColor;
 }
 
 function getStatusLabel(device: Device): string {
   if (device.type === 'camera')    return 'LIVE FEED';
-  if (device.type === 'lock')     return device.isOn ? 'LOCKED' : 'UNLOCKED';
+  if (device.type === 'lock')     return device.value === 1 ? 'LOCKED' : 'UNLOCKED';
   if (device.type === 'thermostat') {
     if (!device.isOn) return 'OFF';
     const threshold = 23;
@@ -121,12 +130,14 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
     scale.value = withSpring(1, { damping: 15, stiffness: 300 });
   };
 
-  const status = device.isOn ? (device.type === 'lock' ? 'locked' : 'on') : 'off';
-  const { iconColor: iconTint, bg: iconBg } = getDeviceIconStyle(device.type, status);
-  const statusColor = getStatusColor(device.type, status, accent, iconColor);
+  const status = device.type === 'lock'
+    ? (device.value === 1 ? 'locked' : 'unlocked')
+    : (device.isOn ? 'on' : 'off');
+  const { iconColor: iconTint, bg: iconBg } = getDeviceIconStyle(device.type, status, device);
+  const statusColor = getStatusColor(device.type, status, accent, iconColor, device);
   const statusLabel = getStatusLabel(device);
   const isCamera = device.type === 'camera';
-  const hasCustomIcon = (device.type === 'vacuum' || device.type === 'purifier' || device.type === 'doorbell' || device.type === 'sprinkler' || device.type === 'solar') && device.image;
+  const hasCustomIcon = (device.type === 'vacuum' || device.type === 'purifier' || device.type === 'doorbell' || device.type === 'sprinkler' || device.type === 'solar' || device.type === 'lock') && device.image;
   const isActiveWithUnderglow = (device.type === 'light' && device.isOn) || device.type === 'camera';
 
   const isDark = theme === 'dark';
@@ -191,7 +202,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
                 })()
               ) : (
                 <IconSymbol
-                  name={getIconName(device.type, device.isOn) as any}
+                  name={getIconName(device.type, device.type === 'lock' ? device.value === 1 : device.isOn) as any}
                   size={20}
                   color={isCamera ? '#FFFFFF' : iconTint}
                 />

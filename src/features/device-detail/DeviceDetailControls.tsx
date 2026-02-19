@@ -1,6 +1,5 @@
 import { Typography } from '@/constants/theme';
 import { AnimatedToggle } from '@/src/components/controls/AnimatedToggle';
-import { LockControls } from '@/src/components/controls/LockControls';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Device, useDeviceStore } from '@/src/store/useDeviceStore';
 import React from 'react';
@@ -8,6 +7,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { CameraDetail } from './CameraDetail';
 import { DoorbellDetail } from './DoorbellDetail';
 import { LightDetail } from './LightDetail';
+import { LockDetail } from './LockDetail';
 import { PurifierDetail } from './PurifierDetail';
 import { SolarDetail } from './SolarDetail';
 import { SprinklerDetail } from './SprinklerDetail';
@@ -32,16 +32,7 @@ export const DeviceDetailControls: React.FC<DeviceDetailControlsProps> = ({ devi
       return <CameraDetail device={device} />;
 
     case 'lock':
-      return (
-        <View style={styles.section}>
-          <GlassCard>
-            <LockControls
-              isLocked={device.isOn}
-              onToggle={(_locked) => toggleDevice(device.id)}
-            />
-          </GlassCard>
-        </View>
-      );
+      return <LockDetail device={device} />;
 
     case 'ac':
       return (

@@ -90,6 +90,10 @@ const MAPPING = {
   'auto_mode': 'autorenew',
   'account_balance_wallet': 'account-balance-wallet',
   'check': 'check',
+  'shield': 'shield',
+  'shield.fill': 'shield',
+  'package.2': 'inventory-2',
+  'door.front.door': 'door-front',
 } as unknown as IconMapping;
 
 /**

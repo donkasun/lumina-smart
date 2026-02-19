@@ -20,6 +20,12 @@ const IOS_SYMBOL_MAP: Partial<Record<string, SymbolViewProps['name']>> = {
   'notification_important': 'bell.badge.fill',
   'mic': 'mic.fill',
   'video.fill': 'video.fill',
+  'shield': 'shield.fill',
+  'shield.fill': 'shield.fill',
+  'package.2': 'shippingbox.fill',
+  'door.front.door': 'door.garage.closed',
+  'light_mode': 'sun.max.fill',
+  'cleaning.services': 'sparkles',
 };
 
 export function IconSymbol({

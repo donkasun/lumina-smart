@@ -19,6 +19,7 @@ export const DeviceDetailHeader: React.FC<DeviceDetailHeaderProps> = ({ device }
   const getStatusText = () => {
     if (device.type === 'camera') return 'LIVE FEED';
     if (device.type === 'lock') return device.isOn ? 'LOCKED' : 'UNLOCKED';
+    if (device.type === 'tv' || device.type === 'speaker') return device.isOn ? 'ACTIVE' : 'STANDBY';
     return device.isOn ? 'ON' : 'OFF';
   };
 

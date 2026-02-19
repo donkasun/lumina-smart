@@ -80,7 +80,7 @@ function getStatusLabel(device: Device): string {
   if (device.type === 'purifier')  return device.isOn ? `AQI ${device.value}` : 'OFF';
   if (device.type === 'sprinkler') return device.isOn ? 'WATERING' : 'IDLE';
   if (device.type === 'solar') return device.isOn ? 'GENERATING' : 'IDLE';
-  if (device.type === 'tv' || device.type === 'speaker') return device.isOn ? 'ACTIVE' : 'OFF';
+  if (device.type === 'tv' || device.type === 'speaker') return device.isOn ? 'ACTIVE' : 'STANDBY';
   return device.isOn ? 'ON' : 'OFF';
 }
 

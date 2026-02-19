@@ -88,6 +88,8 @@ const MAPPING = {
   'info': 'info',
   'info.outline': 'info-outline',
   'auto_mode': 'autorenew',
+  'account_balance_wallet': 'account-balance-wallet',
+  'check': 'check',
 } as unknown as IconMapping;
 
 /**

@@ -11,6 +11,11 @@ const IOS_SYMBOL_MAP: Partial<Record<string, SymbolViewProps['name']>> = {
   'mode_fan': 'fanblades.fill',
   'humidity_mid': 'humidity',
   'calendar_today': 'calendar',
+  'grid_goldenratio': 'square.grid.2x2',
+  'account_balance_wallet': 'creditcard.fill',
+  'power_settings_new': 'power',
+  'verified': 'checkmark.shield.fill',
+  'check': 'checkmark',
 };
 
 export function IconSymbol({

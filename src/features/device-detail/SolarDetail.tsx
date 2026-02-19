@@ -1,152 +1,186 @@
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { Defs, Path, Stop, Svg, LinearGradient as SvgGradient } from 'react-native-svg';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Device } from '@/src/store/useDeviceStore';
-import { PRIMARY } from './constants';
+import { LineChart } from 'react-native-gifted-charts';
 
-const SolarPanelIcon = require('../../../assets/icons/solar-panel.svg').default ?? require('../../../assets/icons/solar-panel.svg');
+const CHART_WIDTH = Dimensions.get('window').width - 32 - 32;
 
-const SOLAR_DATA = [80, 75, 40, 20, 50, 70];
-const SOLAR_X_LABELS = ['06:00', '10:00', '14:00', '18:00', '22:00'];
+const SolarPanelIcon =
+  require('../../../assets/icons/solar-panel.svg').default ??
+  require('../../../assets/icons/solar-panel.svg');
+
+const SOLAR_ORANGE = '#FF7D54';
+const GRID_GREEN = '#10B981';
+const SECONDARY_BLUE = '#3B82F6';
+
+// Chart data: solar production (peak midday) and usage (flatter, slightly declining)
+const SOLAR_VALUES = [20, 45, 90, 85, 50, 25];
+const USAGE_VALUES = [75, 72, 68, 70, 72, 75];
 
 export const SolarDetail: React.FC<{ device: Device }> = ({ device }) => {
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'icon');
   const surfaceColor = useThemeColor({}, 'surface');
   const borderColor = useThemeColor({}, 'border' as any) ?? 'rgba(0,0,0,0.08)';
+  const accentColor = useThemeColor({}, 'accent');
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const cardBg = surfaceColor;
+  const flowSolarBg = isDark ? 'rgba(255,125,84,0.2)' : 'rgba(255,125,84,0.12)';
+  const flowGridBg = isDark ? 'rgba(16,185,129,0.2)' : 'rgba(16,185,129,0.12)';
+  const batteryBarBg = useThemeColor({}, 'border');
 
-  const glowOpacity = useSharedValue(0.2);
-  React.useEffect(() => {
-    glowOpacity.value = withRepeat(
-      withTiming(0.5, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true
-    );
-  }, [glowOpacity]);
-
-  const glowStyle = useAnimatedStyle(() => ({
-    opacity: glowOpacity.value,
-  }));
-
-  const recOpacity = useSharedValue(1);
-  React.useEffect(() => {
-    recOpacity.value = withRepeat(
-      withTiming(0.2, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true
-    );
-  }, [recOpacity]);
-  const recDotStyle = useAnimatedStyle(() => ({ opacity: recOpacity.value }));
-
-  const { linePath, areaPath } = useMemo(() => {
-    const w = 100;
-    const h = 100;
-    const pts = SOLAR_DATA.map((v, i) => ({
-      x: (i / (SOLAR_DATA.length - 1)) * w,
-      y: h - (v / 100) * h,
-    }));
-    const makeQCurve = (points: { x: number; y: number }[]) => {
-      let d = `M ${points[0].x} ${points[0].y}`;
-      for (let i = 1; i < points.length; i++) {
-        const cx = (points[i - 1].x + points[i].x) / 2;
-        const cy = (points[i - 1].y + points[i].y) / 2;
-        d += ` Q ${points[i - 1].x} ${points[i - 1].y} ${cx} ${cy}`;
-      }
-      d += ` Q ${points[points.length - 2].x} ${points[points.length - 2].y} ${pts[pts.length - 1].x} ${pts[pts.length - 1].y}`;
-      return d;
-    };
-    const curve = makeQCurve(pts);
-    const area = `${curve} L ${w} ${h} L 0 ${h} Z`;
-    return { linePath: curve, areaPath: area };
-  }, []);
+  const chartDataSets = useMemo(
+    () => [
+      {
+        data: SOLAR_VALUES.map((value) => ({ value })),
+        color: SOLAR_ORANGE,
+        areaChart: true,
+        startFillColor: SOLAR_ORANGE,
+        endFillColor: SOLAR_ORANGE,
+        startOpacity: 0.2,
+        endOpacity: 0,
+      },
+      {
+        data: USAGE_VALUES.map((value) => ({ value })),
+        color: SECONDARY_BLUE,
+        strokeDashArray: [6, 4],
+      },
+    ],
+    []
+  );
 
   return (
     <View style={styles.section}>
-      <GlassCard style={styles.solarHeroCard}>
-        <View style={styles.solarLiveBadge}>
-          <Animated.View style={[styles.solarLiveDot, recDotStyle]} />
-          <Text style={styles.solarLiveText}>LIVE</Text>
-        </View>
-        <View style={styles.solarIconWrapper}>
-          <Animated.View style={[styles.solarGlow, glowStyle]} />
-          <View style={styles.solarIconCircle}>
-            <SolarPanelIcon width={60} height={60} color={PRIMARY} />
-          </View>
-        </View>
-        <Text style={[styles.solarHeroLabel, { color: subtextColor }]}>Real-time Production</Text>
-        <View style={styles.solarValueRow}>
-          <Text style={[styles.solarValue, { color: textColor }]}>{device.value}</Text>
-          <Text style={[styles.solarUnit, { color: PRIMARY }]}>W</Text>
-        </View>
-        <View style={styles.solarMetricsRow}>
-          <Text style={[styles.solarMetric, { color: subtextColor }]}>Efficiency 94%</Text>
-          <View style={styles.solarDivider} />
-          <Text style={[styles.solarMetric, { color: subtextColor }]}>Peak Today 1.8 kW</Text>
-        </View>
-      </GlassCard>
-
-      <GlassCard style={styles.chartCard}>
-        <View style={styles.chartHeader}>
-          <Text style={[styles.sectionLabel, { color: subtextColor }]}>PRODUCTION HISTORY</Text>
-          <View style={styles.chartTabs}>
-            <View style={[styles.chartTab, styles.chartTabActive]}>
-              <Text style={styles.chartTabActiveText}>Today</Text>
+      {/* Energy flow: Solar → Home → Grid (icons on one line) */}
+      <GlassCard style={[styles.flowCard, { backgroundColor: cardBg }]}>
+        <View style={styles.flowIconRow}>
+          <View style={styles.flowIconSlot}>
+            <View style={[styles.flowIconWrapSmall, { backgroundColor: flowSolarBg }]}>
+              <SolarPanelIcon width={32} height={32} color={SOLAR_ORANGE} />
             </View>
-            <Pressable>
-              <View style={styles.chartTab}>
-                <Text style={[styles.chartTabText, { color: subtextColor }]}>Week</Text>
-              </View>
-            </Pressable>
+          </View>
+          <View style={styles.flowLineWrapper}>
+            <View style={[styles.flowLine, styles.flowLineOrange]}>
+              <View style={[styles.flowDot, styles.flowDotOrange]} />
+            </View>
+          </View>
+          <View style={styles.flowIconSlot}>
+            <View style={[styles.flowIconHome, { backgroundColor: accentColor }]}>
+              <IconSymbol name="house.fill" size={36} color="#FFFFFF" />
+            </View>
+          </View>
+          <View style={styles.flowLineWrapper}>
+            <View style={[styles.flowLine, styles.flowLineGreen]}>
+              <View style={[styles.flowDot, styles.flowDotGreen]} />
+            </View>
+          </View>
+          <View style={styles.flowIconSlot}>
+            <View style={[styles.flowIconWrapSmall, { backgroundColor: flowGridBg }]}>
+              <IconSymbol name="bolt.fill" size={28} color={GRID_GREEN} />
+            </View>
           </View>
         </View>
-        <Svg viewBox="0 0 100 100" width="100%" height={160}>
-          <Defs>
-            <SvgGradient id="solarGrad" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor={PRIMARY} stopOpacity="0.20" />
-              <Stop offset="1" stopColor={PRIMARY} stopOpacity="0" />
-            </SvgGradient>
-          </Defs>
-          <Path d={areaPath} fill="url(#solarGrad)" />
-          <Path d={linePath} stroke={PRIMARY} strokeWidth="2" fill="none" strokeLinecap="round" />
-        </Svg>
-        <View style={styles.xLabels}>
-          {SOLAR_X_LABELS.map((l) => (
-            <Text key={l} style={[styles.xLabel, { color: subtextColor }]}>
-              {l}
-            </Text>
-          ))}
+        <View style={styles.flowLabelsRow}>
+          <View style={styles.flowBlock}>
+            <Text style={[styles.flowLabelSmall, { color: subtextColor }]}>SOLAR</Text>
+            <Text style={styles.flowValueSolar}>{device.value ?? '1.4'} kW</Text>
+          </View>
+          <View style={styles.flowBlockSpacer} />
+          <View style={styles.flowBlock}>
+            <Text style={[styles.flowLabelSmall, { color: subtextColor }]}>GRID</Text>
+            <View style={styles.flowBadgeGreen}>
+              <Text style={styles.flowBadgeText}>Exporting 0.6 kW</Text>
+            </View>
+          </View>
         </View>
       </GlassCard>
 
+      {/* Production vs. Consumption */}
+      <GlassCard style={[styles.chartCard, { backgroundColor: cardBg }]}>
+        <View style={styles.chartHeader}>
+          <View>
+            <Text style={[styles.chartTitle, { color: textColor }]}>
+              Production vs. Consumption
+            </Text>
+            <Text style={[styles.chartSubtitle, { color: subtextColor }]}>
+              Real-time balancing
+            </Text>
+          </View>
+          <View style={styles.chartLegend}>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendDot, { backgroundColor: SOLAR_ORANGE }]} />
+              <Text style={[styles.legendText, { color: subtextColor }]}>SOLAR</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendDot, { backgroundColor: SECONDARY_BLUE }]} />
+              <Text style={[styles.legendText, { color: subtextColor }]}>USAGE</Text>
+            </View>
+          </View>
+        </View>
+        <View style={styles.chartWrap}>
+          <LineChart
+            dataSet={chartDataSets}
+            height={176}
+            width={CHART_WIDTH}
+            spacing={Math.max(40, (CHART_WIDTH - 32) / (chartDataSets[0].data.length - 1))}
+            initialSpacing={16}
+            endSpacing={16}
+            hideDataPoints
+            hideRules
+            hideYAxisText
+            noOfSections={4}
+            curved
+            scrollable={false}
+            isAnimated
+            animationDuration={800}
+          />
+        </View>
+        <View style={styles.xLabels}>
+          <Text style={[styles.xLabel, { color: subtextColor }]}>06:00</Text>
+          <Text style={[styles.xLabel, { color: subtextColor }]}>12:00</Text>
+          <Text style={[styles.xLabel, { color: subtextColor }]}>18:00</Text>
+        </View>
+      </GlassCard>
+
+      {/* Stat cards: Saved Today, Battery, kWh Yield */}
       <View style={styles.statsGrid}>
-        <GlassCard style={styles.statCard}>
-          <View style={[styles.statIconCircle, { backgroundColor: 'rgba(251,146,60,0.15)' }]}>
-            <IconSymbol name="bolt.fill" size={20} color="#F97316" />
+        <GlassCard style={[styles.statCard, { backgroundColor: cardBg }]}>
+          <View style={[styles.statIconCircleYellow, isDark && styles.statIconCircleYellowDark]}>
+            <IconSymbol name="account_balance_wallet" size={20} color="#CA8A04" />
           </View>
-          <Text style={[styles.statValue, { color: textColor }]}>12.4 kWh</Text>
-          <Text style={[styles.statLabel, { color: subtextColor }]}>Today</Text>
+          <Text style={[styles.statValue, { color: textColor }]}>$3.50</Text>
+          <Text style={[styles.statLabel, { color: subtextColor }]}>SAVED TODAY</Text>
         </GlassCard>
-        <GlassCard style={styles.statCard}>
-          <View style={[styles.statIconCircle, { backgroundColor: 'rgba(59,130,246,0.15)' }]}>
-            <IconSymbol name="house.fill" size={20} color="#3B82F6" />
+
+        <GlassCard style={[styles.statCard, { backgroundColor: cardBg }]}>
+          <View style={[styles.statIconCircleGreen, isDark && styles.statIconCircleGreenDark]}>
+            <IconSymbol name="battery.75percent" size={20} color={GRID_GREEN} />
           </View>
-          <Text style={[styles.statValue, { color: textColor }]}>8.2 kWh</Text>
-          <Text style={[styles.statLabel, { color: subtextColor }]}>Usage</Text>
+          <Text style={[styles.statValue, { color: textColor }]}>85%</Text>
+          <View style={styles.batteryBarWrap}>
+            <View style={[styles.batteryBarBg, { backgroundColor: batteryBarBg }]}>
+              <View style={[styles.batteryBarFill, { width: '85%' }]} />
+            </View>
+          </View>
+          <Text style={[styles.statLabel, { color: subtextColor }]}>BATTERY</Text>
         </GlassCard>
-        <GlassCard style={styles.statCard}>
-          <View style={[styles.statIconCircle, { backgroundColor: 'rgba(34,197,94,0.15)' }]}>
-            <IconSymbol name="grid_goldenratio" size={20} color="#22C55E" />
+
+        <GlassCard style={[styles.statCard, { backgroundColor: cardBg }]}>
+          <View style={[styles.statIconCircleBlue, isDark && styles.statIconCircleBlueDark]}>
+            <IconSymbol name="power_settings_new" size={20} color={SECONDARY_BLUE} />
           </View>
-          <Text style={[styles.statValue, { color: textColor }]}>4.2 kWh</Text>
-          <Text style={[styles.statLabel, { color: subtextColor }]}>Grid</Text>
+          <Text style={[styles.statValue, { color: textColor }]}>12.4</Text>
+          <Text style={[styles.statLabel, { color: subtextColor }]}>KWH YIELD</Text>
         </GlassCard>
       </View>
 
+      {/* System Health footer */}
       <View
         style={[
           styles.healthCard,
@@ -155,16 +189,14 @@ export const SolarDetail: React.FC<{ device: Device }> = ({ device }) => {
       >
         <View style={styles.healthLeft}>
           <View style={styles.healthIconCircle}>
-            <IconSymbol name="verified" size={22} color="#22C55E" />
+            <IconSymbol name="verified" size={18} color={GRID_GREEN} />
           </View>
-          <View style={styles.healthText}>
-            <Text style={[styles.healthTitle, { color: textColor }]}>System Health</Text>
-            <Text style={[styles.healthSubtitle, { color: subtextColor }]}>All 12 panels online</Text>
-          </View>
+          <Text style={[styles.healthTitle, { color: textColor }]}>
+            System Health: Optimal
+          </Text>
         </View>
-        <View style={styles.optimalBadge}>
-          <View style={styles.optimalDot} />
-          <Text style={styles.optimalText}>OPTIMAL</Text>
+        <View style={styles.healthCheckCircle}>
+          <IconSymbol name="check" size={16} color="#FFFFFF" />
         </View>
       </View>
     </View>
@@ -173,141 +205,183 @@ export const SolarDetail: React.FC<{ device: Device }> = ({ device }) => {
 
 const styles = StyleSheet.create({
   section: {
-    gap: 8,
+    gap: 24,
     paddingTop: 8,
     paddingHorizontal: 16,
   },
-  solarHeroCard: {
-    alignItems: 'center',
-    gap: 8,
+  flowCard: {
     paddingVertical: 24,
-    borderColor: 'rgba(255,125,84,0.10)',
-    borderWidth: 1,
+    paddingHorizontal: 20,
   },
-  solarLiveBadge: {
+  flowIconRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(34,197,94,0.15)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-    position: 'absolute',
-    top: 16,
-    right: 16,
+    justifyContent: 'space-between',
+    height: 72,
   },
-  solarLiveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#22C55E',
+  flowIconSlot: {
+    height: 72,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 70,
   },
-  solarLiveText: {
-    color: '#22C55E',
+  flowLabelsRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    paddingHorizontal: 2,
+  },
+  flowBlock: {
+    alignItems: 'center',
+    gap: 2,
+    width: 70,
+  },
+  flowBlockSpacer: {
+    width: 70,
+  },
+  flowIconWrapSmall: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flowIconHome: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  flowLabelSmall: {
     fontSize: 10,
     fontWeight: '700',
     fontFamily: Typography.bold,
+    letterSpacing: 1,
   },
-  solarIconWrapper: {
+  flowValueSolar: {
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: Typography.bold,
+    color: SOLAR_ORANGE,
+  },
+  flowBadgeGreen: {
+    backgroundColor: 'rgba(16,185,129,0.2)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  flowBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    fontFamily: Typography.bold,
+    color: GRID_GREEN,
+  },
+  flowLineWrapper: {
+    flex: 1,
+    minWidth: 24,
+    maxWidth: 56,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
   },
-  solarGlow: {
+  flowLine: {
+    height: 2,
+    width: '100%',
+    borderRadius: 1,
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flowLineOrange: {
+    backgroundColor: 'rgba(255,125,84,0.35)',
+  },
+  flowLineGreen: {
+    backgroundColor: 'rgba(16,185,129,0.35)',
+  },
+  flowDot: {
     position: 'absolute',
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255,125,84,0.25)',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    left: '50%',
+    marginLeft: -4,
   },
-  solarIconCircle: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: 'rgba(255,125,84,0.10)',
-    alignItems: 'center',
-    justifyContent: 'center',
+  flowDotOrange: {
+    backgroundColor: SOLAR_ORANGE,
+    shadowColor: SOLAR_ORANGE,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  solarHeroLabel: {
-    fontSize: 14,
-    fontFamily: Typography.regular,
-  },
-  solarValueRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 4,
-  },
-  solarValue: {
-    fontSize: 48,
-    fontWeight: '700',
-    fontFamily: Typography.bold,
-  },
-  solarUnit: {
-    fontSize: 20,
-    fontWeight: '700',
-    fontFamily: Typography.bold,
-    paddingBottom: 8,
-  },
-  solarMetricsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  solarMetric: {
-    fontSize: 12,
-    fontFamily: Typography.regular,
-  },
-  solarDivider: {
-    width: 1,
-    height: 14,
-    backgroundColor: 'rgba(0,0,0,0.15)',
+  flowDotGreen: {
+    backgroundColor: GRID_GREEN,
+    shadowColor: GRID_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+    elevation: 2,
   },
   chartCard: {
     gap: 12,
   },
   chartHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
+    marginBottom: 4,
   },
-  sectionLabel: {
+  chartTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    fontFamily: Typography.bold,
+  },
+  chartSubtitle: {
     fontSize: 12,
-    fontWeight: '700',
-    fontFamily: Typography.bold,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  chartTabs: {
-    flexDirection: 'row',
-    gap: 4,
-  },
-  chartTab: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  chartTabActive: {
-    backgroundColor: PRIMARY,
-  },
-  chartTabActiveText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '700',
-    fontFamily: Typography.bold,
-  },
-  chartTabText: {
-    fontSize: 11,
     fontFamily: Typography.regular,
+    marginTop: 2,
+  },
+  chartLegend: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  legendDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  legendText: {
+    fontSize: 10,
+    fontWeight: '700',
+    fontFamily: Typography.bold,
+    letterSpacing: 0.5,
+  },
+  chartWrap: {
+    height: 176,
+    marginHorizontal: -8,
   },
   xLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 4,
+    marginTop: 4,
   },
   xLabel: {
-    fontSize: 9,
-    fontFamily: Typography.regular,
-    textTransform: 'uppercase',
-    opacity: 0.5,
+    fontSize: 10,
+    fontWeight: '700',
+    fontFamily: Typography.bold,
+    letterSpacing: 0.5,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -316,23 +390,67 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     alignItems: 'center',
-    gap: 6,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    gap: 8,
   },
-  statIconCircle: {
+  statIconCircleYellow: {
     width: 40,
     height: 40,
     borderRadius: 20,
+    backgroundColor: 'rgba(234,179,8,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  statIconCircleYellowDark: {
+    backgroundColor: 'rgba(234,179,8,0.25)',
+  },
+  statIconCircleGreen: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(16,185,129,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statIconCircleGreenDark: {
+    backgroundColor: 'rgba(16,185,129,0.25)',
+  },
+  statIconCircleBlue: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(59,130,246,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statIconCircleBlueDark: {
+    backgroundColor: 'rgba(59,130,246,0.25)',
+  },
   statValue: {
-    fontSize: 14,
+    fontSize: 20,
     fontWeight: '700',
     fontFamily: Typography.bold,
   },
   statLabel: {
     fontSize: 10,
-    fontFamily: Typography.regular,
+    fontWeight: '700',
+    fontFamily: Typography.bold,
+    letterSpacing: 0.5,
+  },
+  batteryBarWrap: {
+    width: '100%',
+    marginTop: 4,
+  },
+  batteryBarBg: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  batteryBarFill: {
+    height: '100%',
+    backgroundColor: GRID_GREEN,
+    borderRadius: 2,
   },
   healthCard: {
     flexDirection: 'row',
@@ -349,44 +467,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   healthIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(34,197,94,0.15)',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(16,185,129,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  healthText: {
-    gap: 2,
   },
   healthTitle: {
     fontSize: 14,
     fontWeight: '700',
     fontFamily: Typography.bold,
   },
-  healthSubtitle: {
-    fontSize: 12,
-    fontFamily: Typography.regular,
-  },
-  optimalBadge: {
-    flexDirection: 'row',
+  healthCheckCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: GRID_GREEN,
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(34,197,94,0.15)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  optimalDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#22C55E',
-  },
-  optimalText: {
-    color: '#22C55E',
-    fontSize: 10,
-    fontWeight: '700',
-    fontFamily: Typography.bold,
+    justifyContent: 'center',
   },
 });

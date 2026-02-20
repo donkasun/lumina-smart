@@ -19,17 +19,18 @@ interface EventRowProps {
 export const EventRow: React.FC<EventRowProps> = memo(({ event, style }) => {
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'icon');
+  const placeholderBg = `${subtextColor}25`;
 
   return (
     <GlassView style={[styles.row, style]}>
-      <View style={styles.thumbnail}>
+      <View style={[styles.thumbnail, { backgroundColor: placeholderBg }]}>
         {event.thumbnail ? (
           <ImageBackground source={event.thumbnail} style={styles.thumbImage} imageStyle={styles.thumbImageStyle}>
             <IconSymbol name="play.circle.fill" size={24} color="#FFFFFF" />
           </ImageBackground>
         ) : (
-          <View style={styles.thumbPlaceholder}>
-            <IconSymbol name="play.circle.fill" size={24} color="#FFFFFF" />
+          <View style={[styles.thumbPlaceholder, { backgroundColor: placeholderBg }]}>
+            <IconSymbol name="play.circle.fill" size={24} color={subtextColor} />
           </View>
         )}
       </View>
@@ -59,7 +60,6 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: 'rgba(0,0,0,0.3)',
   },
   thumbImage: {
     width: '100%',
@@ -72,7 +72,6 @@ const styles = StyleSheet.create({
   },
   thumbPlaceholder: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
   },

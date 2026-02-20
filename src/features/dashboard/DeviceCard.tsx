@@ -12,6 +12,11 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import {
+  EXTERNAL_LOCK_GREEN,
+  INTERNAL_LOCK_ORANGE,
+  isExternalDoor,
+} from '../device-detail/lock';
 import { Device } from '../../store/useDeviceStore';
 
 const { width: windowWidth } = Dimensions.get('window');
@@ -25,39 +30,66 @@ function getIconName(type: string, isOn: boolean): string {
     case 'thermostat': return 'thermometer.medium';
     case 'lock': return isOn ? 'lock.fill' : 'lock.open.fill';
     case 'camera': return 'video.fill';
-    case 'ac': return 'wind';
+    case 'ac':       return 'wind';
+    case 'vacuum':   return isOn ? 'house.fill' : 'house';
+    case 'doorbell': return 'bell.fill';
+    case 'purifier': return 'wind';
+    case 'solar': return 'sun.max.fill';
+    case 'sprinkler': return 'spigot.fill';
+    case 'tv': return 'tv.fill';
+    case 'speaker': return 'hifispeaker.fill';
     default: return 'square.grid.2x2.fill';
   }
 }
 
-function getDeviceIconStyle(type: string, status: string): { iconColor: string; bg: string } {
+function getDeviceIconStyle(type: string, status: string, device?: Device): { iconColor: string; bg: string } {
   const isOn = status === 'on' || status === 'locked' || status === 'armed';
+  const isMainDoor = type === 'lock' && device && isExternalDoor(device.name);
+  const lockLocked = type === 'lock' && status === 'locked';
+  const lockIconColor = lockLocked ? (isMainDoor ? EXTERNAL_LOCK_GREEN : INTERNAL_LOCK_ORANGE) : '#6B7280';
+  const lockBg = lockLocked ? (isMainDoor ? '#D1FAE5' : '#FFEDD5') : '#F3F4F6';
 
   const map: Record<string, { iconColor: string; bg: string }> = {
-    light:      { iconColor: isOn ? '#FFFFFF' : '#FF7D54', bg: isOn ? '#FF7D54' : '#F3F4F6' },
+    light:      { iconColor: isOn ? '#FFFFFF' : '#6B7280', bg: isOn ? '#FF7D54' : '#F3F4F6' },
     thermostat: { iconColor: '#EA580C', bg: '#FFEDD5' },
     ac:         { iconColor: '#6B7280', bg: '#F3F4F6' },
-    lock:       { iconColor: status === 'locked' ? '#0D9488' : '#6B7280', bg: status === 'locked' ? '#CCFBF1' : '#F3F4F6' },
+    lock:       { iconColor: lockIconColor, bg: lockBg },
     garage:     { iconColor: '#6B7280', bg: '#F3F4F6' },
     alarm:      { iconColor: status === 'armed' ? '#DC2626' : '#6B7280', bg: status === 'armed' ? '#FEE2E2' : '#F3F4F6' },
-    speaker:    { iconColor: '#9333EA', bg: '#F3E8FF' },
-    tv:         { iconColor: '#6B7280', bg: '#F3F4F6' },
-    solar:      { iconColor: '#FF7D54', bg: '#FFEDD5' },
+    speaker:    { iconColor: isOn ? '#9333EA' : '#6B7280', bg: isOn ? '#F3E8FF' : '#F3F4F6' },
+    tv:         { iconColor: isOn ? '#3B82F6' : '#6B7280', bg: isOn ? '#BFDBFE' : '#F3F4F6' },
+    solar:      { iconColor: isOn ? '#F59E0B' : '#6B7280', bg: isOn ? '#FEF3C7' : '#F3F4F6' },
     camera:     { iconColor: '#FF7D54', bg: '#FF7D54' },
+    vacuum:     { iconColor: isOn ? '#34D399' : '#6B7280', bg: isOn ? '#D1FAE5' : '#F3F4F6' },
+    doorbell:   { iconColor: isOn ? '#FF7D54' : '#6B7280', bg: isOn ? '#FFEDD5' : '#F3F4F6' },
+    purifier:   { iconColor: isOn ? '#3B82F6' : '#6B7280', bg: isOn ? '#BFDBFE' : '#F3F4F6' },
+    sprinkler:  { iconColor: isOn ? '#0D9488' : '#6B7280', bg: isOn ? '#CCFBF1' : '#F3F4F6' },
   };
   return map[type] ?? { iconColor: '#6B7280', bg: '#F3F4F6' };
 }
 
-function getStatusColor(type: string, status: string, accent: string, iconColor: string): string {
+function getStatusColor(type: string, status: string, accent: string, iconColor: string, device?: Device): string {
   if (status === 'on')     return accent;
-  if (status === 'locked') return '#0D9488';
+  if (status === 'locked') return type === 'lock' && device && !isExternalDoor(device.name) ? INTERNAL_LOCK_ORANGE : EXTERNAL_LOCK_GREEN;
   if (status === 'armed')  return '#DC2626';
   return iconColor;
 }
 
 function getStatusLabel(device: Device): string {
-  if (device.type === 'camera') return 'LIVE FEED';
-  if (device.type === 'lock')   return device.isOn ? 'LOCKED' : 'UNLOCKED';
+  if (device.type === 'camera')    return 'LIVE FEED';
+  if (device.type === 'lock')     return device.value === 1 ? 'LOCKED' : 'UNLOCKED';
+  if (device.type === 'thermostat') {
+    if (!device.isOn) return 'OFF';
+    const threshold = 23;
+    const mode = device.value >= threshold ? 'HEATING' : 'COOLING';
+    return `${mode} ${device.value}${device.unit ?? '°C'}`;
+  }
+  if (device.type === 'vacuum')    return device.isOn ? 'CLEANING' : 'DOCKED';
+  if (device.type === 'doorbell')  return device.isOn ? 'LIVE' : 'OFF';
+  if (device.type === 'purifier')  return device.isOn ? `AQI ${device.value}` : 'OFF';
+  if (device.type === 'sprinkler') return device.isOn ? 'WATERING' : 'IDLE';
+  if (device.type === 'solar') return device.isOn ? 'GENERATING' : 'IDLE';
+  if (device.type === 'tv' || device.type === 'speaker') return device.isOn ? 'ACTIVE' : 'STANDBY';
   return device.isOn ? 'ON' : 'OFF';
 }
 
@@ -75,7 +107,8 @@ function areEqual(prev: DeviceCardProps, next: DeviceCardProps): boolean {
     a.value === b.value &&
     a.type === b.type &&
     a.name === b.name &&
-    (a as any).category === (b as any).category
+    (a as any).category === (b as any).category &&
+    (a as any).batteryLevel === (b as any).batteryLevel
   );
 }
 
@@ -97,11 +130,14 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
     scale.value = withSpring(1, { damping: 15, stiffness: 300 });
   };
 
-  const status = device.isOn ? (device.type === 'lock' ? 'locked' : 'on') : 'off';
-  const { iconColor: iconTint, bg: iconBg } = getDeviceIconStyle(device.type, status);
-  const statusColor = getStatusColor(device.type, status, accent, iconColor);
+  const status = device.type === 'lock'
+    ? (device.value === 1 ? 'locked' : 'unlocked')
+    : (device.isOn ? 'on' : 'off');
+  const { iconColor: iconTint, bg: iconBg } = getDeviceIconStyle(device.type, status, device);
+  const statusColor = getStatusColor(device.type, status, accent, iconColor, device);
   const statusLabel = getStatusLabel(device);
   const isCamera = device.type === 'camera';
+  const hasCustomIcon = (device.type === 'vacuum' || device.type === 'purifier' || device.type === 'doorbell' || device.type === 'sprinkler' || device.type === 'solar' || device.type === 'lock') && device.image;
   const isActiveWithUnderglow = (device.type === 'light' && device.isOn) || device.type === 'camera';
 
   const isDark = theme === 'dark';
@@ -143,11 +179,34 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
                 isActiveWithUnderglow ? Shadows.primaryUnderglow : Shadows.card,
               ]}
             >
-              <IconSymbol
-                name={getIconName(device.type, device.isOn) as any}
-                size={20}
-                color={isCamera ? '#FFFFFF' : iconTint}
-              />
+              {hasCustomIcon && device.image ? (
+                (() => {
+                  const Resolved = device.image?.default ?? device.image;
+                  if (typeof Resolved === 'function') {
+                    const IconComponent = Resolved;
+                    return (
+                      <IconComponent
+                        width={28}
+                        height={28}
+                        color={iconTint}
+                      />
+                    );
+                  }
+                  return (
+                    <Image
+                      source={device.image}
+                      style={[styles.customIconImage, { tintColor: iconTint }]}
+                      contentFit="contain"
+                    />
+                  );
+                })()
+              ) : (
+                <IconSymbol
+                  name={getIconName(device.type, device.type === 'lock' ? device.value === 1 : device.isOn) as any}
+                  size={20}
+                  color={isCamera ? '#FFFFFF' : iconTint}
+                />
+              )}
             </View>
 
             {/* Camera REC badge */}
@@ -167,9 +226,29 @@ export const DeviceCard: React.FC<DeviceCardProps> = memo(({ device, onPress }) 
             </Text>
 
             {/* Status */}
-            <Text style={[styles.status, { color: isCamera ? 'rgba(255,255,255,0.8)' : statusColor }]}>
-              {statusLabel}
-            </Text>
+            <View style={styles.statusRow}>
+              <Text style={[styles.status, { color: isCamera ? 'rgba(255,255,255,0.8)' : statusColor }]}>
+                {statusLabel}
+              </Text>
+              {device.type === 'purifier' && device.batteryLevel != null && device.isOn && (
+                <Text style={[styles.status, styles.statusSecondary, { color: isCamera ? 'rgba(255,255,255,0.8)' : statusColor }]}>
+                  {' · '}{device.batteryLevel}%
+                </Text>
+              )}
+              {device.type === 'light' && device.isOn && (
+                <>
+                  <View
+                    style={[
+                      styles.lightColorDot,
+                      { backgroundColor: device.color ?? '#FF7D54' },
+                    ]}
+                  />
+                  <Text style={[styles.status, styles.lightBrightness, { color: isCamera ? 'rgba(255,255,255,0.8)' : statusColor }]}>
+                    {device.value}{device.unit ?? '%'}
+                  </Text>
+                </>
+              )}
+            </View>
           </View>
         </View>
       </Animated.View>
@@ -218,6 +297,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  customIconImage: {
+    width: 28,
+    height: 28,
+  },
   recBadge: {
     position: 'absolute',
     top: 8,
@@ -248,11 +331,28 @@ const styles = StyleSheet.create({
     fontFamily: Typography.bold,
     textAlign: 'center',
   },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
   status: {
     fontSize: 9,
     fontWeight: '700',
     fontFamily: Typography.bold,
     textTransform: 'uppercase',
     textAlign: 'center',
+  },
+  statusSecondary: {
+    textTransform: 'none',
+  },
+  lightColorDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  lightBrightness: {
+    textTransform: 'none',
   },
 });

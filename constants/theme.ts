@@ -39,6 +39,7 @@ export const Colors = {
     livePillDot: "#16A34A",
     weatherIconSun: "#FFD54F",
     weatherIconDrop: "#7CCFFF",
+    chartBar: "rgba(148,163,184,0.35)",
   },
   dark: {
     text: "#F3F4F6",
@@ -70,6 +71,7 @@ export const Colors = {
     livePillDot: "#4ADE80",
     weatherIconSun: "#FFD54F",
     weatherIconDrop: "#7CCFFF",
+    chartBar: "rgba(148,163,184,0.45)",
   },
 };
 

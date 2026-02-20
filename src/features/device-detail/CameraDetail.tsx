@@ -75,6 +75,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 
 export const CameraDetail: React.FC<{ device: Device }> = ({ device }) => {
   const subtextColor = useThemeColor({}, 'icon');
+  const surfaceColor = useThemeColor({}, 'surface');
+  const textColor = useThemeColor({}, 'text');
+  const statusAlertColor = useThemeColor({}, 'statusAlert');
 
   const recOpacity = useSharedValue(1);
   React.useEffect(() => {
@@ -89,17 +92,18 @@ export const CameraDetail: React.FC<{ device: Device }> = ({ device }) => {
     opacity: recOpacity.value,
   }));
 
+  const talkButtonFg = useThemeColor({}, 'text');
   const ACTION_BUTTONS: ActionButtonProps[] = [
-    { icon: 'mic', label: 'Talk', bg: PRIMARY, iconColor: '#FFF', labelColor: '#FFF', shadow: Shadows.primaryUnderglow },
-    { icon: 'photo_camera', label: 'Snapshot', bg: '#F3F4F6', iconColor: '#374151', labelColor: '#374151', shadow: {} },
-    { icon: 'video.fill', label: 'Record', bg: '#F3F4F6', iconColor: '#374151', labelColor: '#374151', shadow: {} },
+    { icon: 'mic', label: 'Talk', bg: PRIMARY, iconColor: talkButtonFg, labelColor: talkButtonFg, shadow: Shadows.primaryUnderglow },
+    { icon: 'photo_camera', label: 'Snapshot', bg: surfaceColor, iconColor: textColor, labelColor: textColor, shadow: Shadows.actionButton },
+    { icon: 'video.fill', label: 'Record', bg: surfaceColor, iconColor: textColor, labelColor: textColor, shadow: Shadows.actionButton },
     {
       icon: 'notification_important',
       label: 'Alarm',
-      bg: 'rgba(239,68,68,0.10)',
-      iconColor: '#EF4444',
-      labelColor: '#EF4444',
-      border: '#EF4444',
+      bg: `${statusAlertColor}1A`,
+      iconColor: statusAlertColor,
+      labelColor: statusAlertColor,
+      border: statusAlertColor,
       shadow: {},
     },
   ];
@@ -132,8 +136,8 @@ export const CameraDetail: React.FC<{ device: Device }> = ({ device }) => {
             <View style={[styles.corner, styles.cornerBR]} />
           </ImageBackground>
         ) : (
-          <View style={[styles.feedHero, styles.feedHeroFallback]}>
-            <IconSymbol name="video.fill" size={48} color="#64748B" />
+          <View style={[styles.feedHero, styles.feedHeroFallback, { backgroundColor: surfaceColor }]}>
+            <IconSymbol name="video.fill" size={48} color={subtextColor} />
           </View>
         )}
       </View>
@@ -178,7 +182,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   feedHeroFallback: {
-    backgroundColor: '#1E293B',
     alignItems: 'center',
     justifyContent: 'center',
   },

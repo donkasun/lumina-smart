@@ -4,8 +4,10 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
+  Image,
   ImageBackground,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -31,6 +33,7 @@ const SLIDE_HEIGHT = (SLIDE_WIDTH * 10) / 16;
 const ITEM_WIDTH = SLIDE_WIDTH + CARD_GAP;
 
 const CHEVRON_SIZE = 32;
+const CAROUSEL_INTERVAL_MS = 3500;
 
 function ChevronButton({
   side,
@@ -72,26 +75,58 @@ const CameraSlide = memo(function CameraSlide({
   total,
   onPrev,
   onNext,
+  onImageLoad,
+  shouldLoadImage,
 }: {
   device: Device;
   index: number;
   total: number;
   onPrev: () => void;
   onNext: () => void;
+  onImageLoad?: () => void;
+  shouldLoadImage: boolean;
 }) {
+  const [imageLoaded, setImageLoaded] = React.useState(false);
   const recDotOpacity = useSharedValue(1);
   useEffect(() => {
     recDotOpacity.value = withRepeat(withTiming(0.2, { duration: 800 }), -1, true);
   }, [recDotOpacity]);
   const pulseDotStyle = useAnimatedStyle(() => ({ opacity: recDotOpacity.value }));
 
+  const handleLoadEnd = useCallback(() => {
+    setImageLoaded(true);
+    onImageLoad?.();
+  }, [onImageLoad]);
+
+  useEffect(() => {
+    if (!shouldLoadImage) return;
+    if (device.image == null) {
+      setImageLoaded(true);
+      onImageLoad?.();
+    }
+  }, [shouldLoadImage, device.image, onImageLoad]);
+
+  const hasImage = device.image != null;
+  const showImage = shouldLoadImage && hasImage;
+
   return (
     <View style={styles.slide}>
-      <ImageBackground
-        source={device.image}
-        style={StyleSheet.absoluteFill}
-        resizeMode="cover"
-      />
+      {showImage ? (
+        <ImageBackground
+          source={device.image}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+          onLoadEnd={handleLoadEnd}
+        />
+      ) : (
+        <View style={[StyleSheet.absoluteFill, styles.loadingPlaceholder]} />
+      )}
+      {!imageLoaded && (
+        <View style={[StyleSheet.absoluteFill, styles.loadingOverlay]}>
+          <ActivityIndicator size="large" color="#FFF" />
+          <Text style={styles.loadingText}>Loading feed...</Text>
+        </View>
+      )}
       <LinearGradient
         colors={['rgba(0,0,0,0.30)', 'transparent', 'rgba(0,0,0,0.70)']}
         style={StyleSheet.absoluteFill}
@@ -121,12 +156,16 @@ export const CameraCarousel = memo(function CameraCarousel() {
   );
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [tourIndex, setTourIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const activeIndexRef = useRef(0);
 
   useEffect(() => {
-    activeIndexRef.current = activeIndex;
-  }, [activeIndex]);
+    setTourIndex(0);
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [cameras]);
+
+  const allImagesLoaded = cameras.length > 0 && tourIndex >= cameras.length;
 
   const scrollTo = useCallback(
     (index: number) => {
@@ -136,6 +175,24 @@ export const CameraCarousel = memo(function CameraCarousel() {
     },
     [cameras.length]
   );
+
+  const handleSlideImageLoad = useCallback(
+    (index: number) => {
+      setTourIndex((current) => {
+        if (index !== current) return current;
+        const next = current + 1;
+        if (next < cameras.length) {
+          setTimeout(() => scrollTo(next), CAROUSEL_INTERVAL_MS);
+        }
+        return next;
+      });
+    },
+    [cameras.length, scrollTo]
+  );
+
+  useEffect(() => {
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
 
   const onScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -158,26 +215,40 @@ export const CameraCarousel = memo(function CameraCarousel() {
   );
 
   useEffect(() => {
-    if (cameras.length <= 1) return;
+    if (cameras.length <= 1 || !allImagesLoaded) return;
     let intervalId: ReturnType<typeof setInterval> | null = null;
     const startTimeout = setTimeout(() => {
       intervalId = setInterval(() => {
         const next = (activeIndexRef.current + 1) % cameras.length;
         scrollTo(next);
-      }, 3500);
+      }, CAROUSEL_INTERVAL_MS);
     }, 2000);
     return () => {
       clearTimeout(startTimeout);
       if (intervalId) clearInterval(intervalId);
     };
-  }, [cameras.length, scrollTo]);
+  }, [cameras.length, scrollTo, allImagesLoaded]);
 
   if (cameras.length === 0) return null;
 
   const snapOffsets = cameras.map((_, i) => i * ITEM_WIDTH);
 
+  const nextSlide = cameras[tourIndex + 1];
+  const nextNextSlide = cameras[tourIndex + 2];
+
   return (
     <View style={styles.container}>
+      {/* Preload next slide(s) so they are decoded before we scroll */}
+      {nextSlide?.image != null && (
+        <View style={styles.preloadHidden} pointerEvents="none">
+          <Image source={nextSlide.image} style={styles.preloadImage} resizeMode="cover" />
+        </View>
+      )}
+      {nextNextSlide?.image != null && (
+        <View style={styles.preloadHidden} pointerEvents="none">
+          <Image source={nextNextSlide.image} style={styles.preloadImage} resizeMode="cover" />
+        </View>
+      )}
       <View style={styles.carouselWrapper}>
         <FlatList
           ref={flatListRef}
@@ -201,6 +272,8 @@ export const CameraCarousel = memo(function CameraCarousel() {
                 total={cameras.length}
                 onPrev={() => scrollTo(index - 1)}
                 onNext={() => scrollTo(index + 1)}
+                onImageLoad={() => handleSlideImageLoad(index)}
+                shouldLoadImage={index <= tourIndex}
               />
             </View>
           )}
@@ -228,6 +301,17 @@ const styles = StyleSheet.create({
   container: {
     paddingVertical: 12,
   },
+  preloadHidden: {
+    position: 'absolute',
+    left: -9999,
+    width: 1,
+    height: 1,
+    overflow: 'hidden',
+  },
+  preloadImage: {
+    width: 1,
+    height: 1,
+  },
   carouselWrapper: {
     height: SLIDE_HEIGHT,
     position: 'relative',
@@ -243,6 +327,20 @@ const styles = StyleSheet.create({
     height: SLIDE_HEIGHT,
     borderRadius: 24,
     overflow: 'hidden',
+  },
+  loadingPlaceholder: {
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  loadingOverlay: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+  },
+  loadingText: {
+    fontSize: 12,
+    fontFamily: Typography.medium,
+    color: 'rgba(255,255,255,0.9)',
   },
   recBadge: {
     position: 'absolute',

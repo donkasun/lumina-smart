@@ -55,7 +55,7 @@ export const VacuumDetail: React.FC<VacuumDetailProps> = ({ device }) => {
 
   const handleStartPause = () => {
     if (device.isOn) {
-      haptics.impact();
+      haptics.press();
       setIsReturning(true);
     } else {
       haptics.success();
@@ -66,7 +66,7 @@ export const VacuumDetail: React.FC<VacuumDetailProps> = ({ device }) => {
 
   const handleReturnToDock = () => {
     if (device.isOn) {
-      haptics.impact();
+      haptics.press();
       setIsReturning(true);
     }
   };

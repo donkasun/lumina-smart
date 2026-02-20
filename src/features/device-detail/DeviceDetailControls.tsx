@@ -8,7 +8,7 @@ import { CameraDetail } from './CameraDetail';
 import { DoorbellDetail } from './DoorbellDetail';
 import { LightDetail } from './LightDetail';
 import { LockDetail } from './LockDetail';
-import { PurifierDetail } from './PurifierDetail';
+import { PurifierDetail } from './purifier';
 import { SolarDetail } from './SolarDetail';
 import { SprinklerDetail } from './SprinklerDetail';
 import { ThermostatDetail } from './ThermostatDetail';

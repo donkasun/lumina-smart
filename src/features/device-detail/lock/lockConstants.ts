@@ -50,3 +50,31 @@ export const DIGITAL_KEYS = [
 ] as const;
 
 export type DigitalKeyId = (typeof DIGITAL_KEYS)[number]['id'];
+
+/** Internal door: access-rule time windows (hours in 24h format). Lock auto-unlocks during these windows when the rule is ON. */
+export const PASSAGE_START_HOUR = 8;  // 8AM
+export const PASSAGE_END_HOUR = 20;   // 8PM (exclusive: 19:59 is still unlocked)
+export const CLEANING_START_HOUR = 10; // 10AM
+export const CLEANING_END_HOUR = 11;   // 11AM (exclusive)
+
+/** True if current time is in an unlock window for the given rules (internal door). */
+export function isInUnlockWindow(
+  passageOn: boolean,
+  cleaningOn: boolean,
+  now: Date = new Date()
+): boolean {
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const timeMinutes = hour * 60 + minute;
+  if (passageOn) {
+    const start = PASSAGE_START_HOUR * 60;
+    const end = PASSAGE_END_HOUR * 60;
+    if (timeMinutes >= start && timeMinutes < end) return true;
+  }
+  if (cleaningOn) {
+    const start = CLEANING_START_HOUR * 60;
+    const end = CLEANING_END_HOUR * 60;
+    if (timeMinutes >= start && timeMinutes < end) return true;
+  }
+  return false;
+}

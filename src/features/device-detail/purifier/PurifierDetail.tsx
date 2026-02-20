@@ -12,72 +12,42 @@ import { Path, Svg } from 'react-native-svg';
 import { AqiGauge } from './AqiGauge';
 import { ParticleField } from './ParticleField';
 import { PollutantBars } from './PollutantBars';
-
-const polarToCartesian = (cx: number, cy: number, r: number, angleDeg: number) => {
-  const rad = (angleDeg * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-};
-
-const createArcPath = (
-  cx: number,
-  cy: number,
-  r: number,
-  startAngle: number,
-  sweepAngle: number
-): string => {
-  if (sweepAngle <= 0) return '';
-  const clampedSweep = Math.min(sweepAngle, 359.999);
-  const start = polarToCartesian(cx, cy, r, startAngle);
-  const end = polarToCartesian(cx, cy, r, startAngle + clampedSweep);
-  const largeArc = clampedSweep > 180 ? 1 : 0;
-  return `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
-};
-
-const RING_CX = 60;
-const RING_CY = 60;
-const RING_R = 50;
-const RING_START = 140;
-const RING_TOTAL = 280;
-const FILTER_PCT = 0.72;
-
-const RING_TRACK_PATH = createArcPath(RING_CX, RING_CY, RING_R, RING_START, RING_TOTAL);
-const RING_FILL_PATH = createArcPath(
-  RING_CX,
-  RING_CY,
-  RING_R,
-  RING_START,
-  FILTER_PCT * RING_TOTAL
-);
-
-const SPEEDS = ['auto', 'low', 'mid', 'high'] as const;
-type Speed = (typeof SPEEDS)[number];
-const SPEED_LABELS: Record<Speed, string> = {
-  auto: 'Auto',
-  low: 'Low',
-  mid: 'Mid',
-  high: 'High',
-};
+import {
+  DEFAULT_PURIFIER_ICON,
+  PURIFIER_SPEED_LABELS,
+  PURIFIER_SPEEDS,
+  RING_FILL_PATH,
+  RING_TRACK_PATH,
+  normalizePurifierSpeed,
+  type PurifierSpeed,
+} from './purifierConstants';
 
 interface PurifierDetailProps {
   device: Device;
 }
 
-const normalizeSpeed = (mode: string | undefined): Speed => {
-  if (mode === 'medium') return 'mid';
-  if (mode === 'auto' || mode === 'low' || mode === 'mid' || mode === 'high') return mode;
-  return 'auto';
-};
+function renderSpeedPillIcon(speed: PurifierSpeed, isActive: boolean, subtextColor: string) {
+  if (speed !== 'auto') return null;
+  return (
+    <IconSymbol
+      name="auto_mode"
+      size={18}
+      color={isActive ? '#FFFFFF' : subtextColor}
+      style={styles.pillIcon}
+    />
+  );
+}
 
 export const PurifierDetail: React.FC<PurifierDetailProps> = ({ device }) => {
   const toggleDevice = useDeviceStore((s) => s.toggleDevice);
-  const [speed, setSpeed] = useState<Speed>(normalizeSpeed(device.mode));
+  const [speed, setSpeed] = useState<PurifierSpeed>(normalizePurifierSpeed(device.mode));
   const textColor = useThemeColor({}, 'text');
   const subtextColor = useThemeColor({}, 'icon');
   const accentColor = useThemeColor({}, 'tint');
   const borderColor = useThemeColor({}, 'border');
   const aqi = device.value;
 
-  const purifierImage = device.image ?? require('../../../assets/icons/air_purifier.svg');
+  const purifierImage = device.image ?? DEFAULT_PURIFIER_ICON;
   const iconColor = device.isOn ? accentColor : subtextColor;
   const IconComponent = purifierImage?.default ?? purifierImage;
 
@@ -98,7 +68,7 @@ export const PurifierDetail: React.FC<PurifierDetailProps> = ({ device }) => {
           <Text style={[styles.modelLine, { color: subtextColor }]} numberOfLines={1}>
             {device.model ?? device.name}
             {' · '}
-            <Text style={styles.fanSpeedInline}>{SPEED_LABELS[speed]}</Text>
+            <Text style={styles.fanSpeedInline}>{PURIFIER_SPEED_LABELS[speed]}</Text>
           </Text>
           {device.batteryLevel != null && (
             <View style={styles.batteryLine}>
@@ -127,12 +97,15 @@ export const PurifierDetail: React.FC<PurifierDetailProps> = ({ device }) => {
       <GlassCard style={styles.fanCard}>
         <Text style={[styles.cardTitle, { color: subtextColor }]}>FAN SPEED</Text>
         <View style={styles.pillRow}>
-          {SPEEDS.map((s) => {
+          {PURIFIER_SPEEDS.map((s) => {
             const isActive = s === speed;
             return (
               <Pressable
                 key={s}
-                onPress={() => { haptics.tap(); setSpeed(s); }}
+                onPress={() => {
+                  haptics.tap();
+                  setSpeed(s);
+                }}
                 style={[
                   styles.pill,
                   isActive
@@ -140,21 +113,11 @@ export const PurifierDetail: React.FC<PurifierDetailProps> = ({ device }) => {
                     : [styles.pillInactive, { backgroundColor: borderColor }],
                 ]}
               >
-                {s === 'auto' ? (
-                  <IconSymbol
-                    name="auto_mode"
-                    size={18}
-                    color={isActive ? '#FFFFFF' : subtextColor}
-                    style={styles.pillIcon}
-                  />
-                ) : null}
+                {renderSpeedPillIcon(s, isActive, subtextColor)}
                 <Text
-                  style={[
-                    styles.pillText,
-                    { color: isActive ? '#FFFFFF' : subtextColor },
-                  ]}
+                  style={[styles.pillText, { color: isActive ? '#FFFFFF' : subtextColor }]}
                 >
-                  {SPEED_LABELS[s]}
+                  {PURIFIER_SPEED_LABELS[s]}
                 </Text>
               </Pressable>
             );

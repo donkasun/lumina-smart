@@ -1,10 +1,11 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Device, useDeviceStore } from '@/src/store/useDeviceStore';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import {
   getLockAccent,
   isExternalDoor,
+  isInUnlockWindow,
   LockAcProtection,
   LockAccessRules,
   LockDeviceCard,
@@ -47,6 +48,18 @@ export const LockDetail: React.FC<LockDetailProps> = ({ device }) => {
   const handleLockToggle = () => {
     if (powerOn) setLocked(device.id, !locked);
   };
+
+  // Internal door: auto lock/unlock from access rules (Passage 8AM–8PM, Cleaning 10–11AM)
+  useEffect(() => {
+    if (isExternal || !powerOn || (!passageOn && !cleaningOn)) return;
+    const syncLockFromRules = () => {
+      const shouldUnlock = isInUnlockWindow(passageOn, cleaningOn);
+      setLocked(device.id, !shouldUnlock);
+    };
+    syncLockFromRules();
+    const interval = setInterval(syncLockFromRules, 60_000);
+    return () => clearInterval(interval);
+  }, [isExternal, powerOn, passageOn, cleaningOn, device.id, setLocked]);
 
   if (!isExternal) {
     const heroTitle = locked ? 'Privacy Enabled' : 'Privacy Disabled';

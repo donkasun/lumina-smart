@@ -9,5 +9,6 @@ export {
   getLockAccent,
   INTERNAL_LOCK_ORANGE,
   isExternalDoor,
+  isInUnlockWindow,
   type DigitalKeyId,
 } from './lockConstants';

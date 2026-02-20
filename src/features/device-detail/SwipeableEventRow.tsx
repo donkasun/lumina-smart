@@ -176,8 +176,6 @@ const styles = StyleSheet.create({
     width: DELETE_BUTTON_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
   },
   deleteButton: {
     alignItems: 'center',

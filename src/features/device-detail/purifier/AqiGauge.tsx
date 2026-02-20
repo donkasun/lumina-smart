@@ -10,47 +10,23 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Line, Path, Svg } from 'react-native-svg';
+import { createArcPath } from './arcUtils';
 
 const CX = 140;
 const CY = 150;
 const R = 100;
 const STROKE = 10;
 const NEEDLE_LENGTH = 82;
-// ViewBox cropped to arc bounds (y 50–150) to remove empty space above the gauge
 const VIEWBOX_WIDTH = 280;
 const VIEWBOX_HEIGHT = 160;
-const VIEWBOX_Y_MIN = 50; // top of arc (CY - R)
-const VIEWBOX_CONTENT_HEIGHT = 100; // arc height (R)
+const VIEWBOX_Y_MIN = 50;
+const VIEWBOX_CONTENT_HEIGHT = 100;
 
-const polarToCartesian = (cx: number, cy: number, r: number, angleDeg: number) => {
-  const rad = (angleDeg * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-};
-
-function createArcPath(
-  cx: number,
-  cy: number,
-  r: number,
-  startAngle: number,
-  sweepAngle: number,
-  clockwise = true
-): string {
-  const sweep = clockwise ? Math.min(sweepAngle, 359.999) : Math.max(sweepAngle, -359.999);
-  if (sweep === 0) return '';
-  const start = polarToCartesian(cx, cy, r, startAngle);
-  const end = polarToCartesian(cx, cy, r, startAngle + sweep);
-  const largeArc = Math.abs(sweep) > 180 ? 1 : 0;
-  const sweepFlag = clockwise ? 1 : 0;
-  return `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${r} ${r} 0 ${largeArc} ${sweepFlag} ${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
-}
-
-// Full 180° track as background (clockwise from 180° through top/270° to 0°/360°)
 const TRACK_PATH = createArcPath(CX, CY, R, 180, 180, true);
-// Four equal 45° color segments sweeping clockwise through the top
-const GREEN_PATH  = createArcPath(CX, CY, R, 180, 45.5, true);
+const GREEN_PATH = createArcPath(CX, CY, R, 180, 45.5, true);
 const YELLOW_PATH = createArcPath(CX, CY, R, 225, 45.5, true);
 const ORANGE_PATH = createArcPath(CX, CY, R, 270, 45.5, true);
-const RED_PATH    = createArcPath(CX, CY, R, 315, 45,   true);
+const RED_PATH = createArcPath(CX, CY, R, 315, 45, true);
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 
@@ -66,7 +42,6 @@ interface AqiGaugeProps {
 }
 
 export const AqiGauge: React.FC<AqiGaugeProps> = ({ aqi }) => {
-  // Needle angle: 180° = left (green), 360° = right (red)
   const needleAngle = useSharedValue(180);
   const subtextColor = useThemeColor({}, 'icon');
   const textColor = useThemeColor({}, 'text');
@@ -100,13 +75,17 @@ export const AqiGauge: React.FC<AqiGaugeProps> = ({ aqi }) => {
           viewBox={`0 ${VIEWBOX_Y_MIN} ${VIEWBOX_WIDTH} ${VIEWBOX_CONTENT_HEIGHT}`}
           preserveAspectRatio="xMidYMax meet"
         >
-          {/* Background track */}
-          <Path d={TRACK_PATH} stroke={borderColor} strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
-          {/* Color segments */}
-          <Path d={GREEN_PATH}  stroke="#34D399" strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
+          <Path
+            d={TRACK_PATH}
+            stroke={borderColor}
+            strokeWidth={STROKE}
+            strokeLinecap="butt"
+            fill="none"
+          />
+          <Path d={GREEN_PATH} stroke="#34D399" strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
           <Path d={YELLOW_PATH} stroke="#FBBF24" strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
           <Path d={ORANGE_PATH} stroke="#FF7D54" strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
-          <Path d={RED_PATH}    stroke="#EF4444" strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
+          <Path d={RED_PATH} stroke="#EF4444" strokeWidth={STROKE} strokeLinecap="butt" fill="none" />
 
           <Line x1={String(CX)} y1={String(CY)} x2={String(CX)} y2={String(CY)} stroke="transparent" strokeWidth={2} />
           <AnimatedLine
@@ -126,7 +105,7 @@ export const AqiGauge: React.FC<AqiGaugeProps> = ({ aqi }) => {
             strokeWidth={12}
             strokeLinecap="round"
           />
-      </Svg>
+        </Svg>
       </View>
 
       <View style={styles.labelContainer}>

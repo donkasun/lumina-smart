@@ -3,9 +3,9 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { GlassCard } from '@/src/components/ui/GlassCard';
 import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDeviceStore } from '@/src/store/useDeviceStore';
 import Animated, {
@@ -35,6 +35,12 @@ const SPEAKER_DEVICE_ID = '15';
 const parseTrackInfo = (filename: string) => {
   const [title, artist] = filename.replace('.mp3', '').split(' - ');
   return { title, artist };
+};
+
+const formatTime = (seconds: number): string => {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
 interface ControlButtonProps {
@@ -82,23 +88,55 @@ export const MusicPlayerCard: React.FC = memo(function MusicPlayerCard() {
   const isPlaying = status.playing;
   const positionMs = (status.currentTime ?? 0) * 1000;
 
-  // Sync speaker device status with music playback
+  const currentTrackIndexRef = useRef(currentTrackIndex);
+  currentTrackIndexRef.current = currentTrackIndex;
+
+  // Configure audio session so playback works on physical device (e.g. iPhone in silent mode)
   useEffect(() => {
-    setDeviceOn(SPEAKER_DEVICE_ID, isPlaying);
+    setAudioModeAsync({
+      playsInSilentMode: true,
+      interruptionMode: 'duckOthers',
+    }).catch(() => {});
+  }, []);
+
+  // Sync speaker device status with music playback: active immediately on play, standby after 500ms when paused (cancel if play resumes)
+  const standbyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (isPlaying) {
+      if (standbyTimeoutRef.current) {
+        clearTimeout(standbyTimeoutRef.current);
+        standbyTimeoutRef.current = null;
+      }
+      setDeviceOn(SPEAKER_DEVICE_ID, true);
+    } else {
+      standbyTimeoutRef.current = setTimeout(() => {
+        standbyTimeoutRef.current = null;
+        setDeviceOn(SPEAKER_DEVICE_ID, false);
+      }, 500);
+      return () => {
+        if (standbyTimeoutRef.current) {
+          clearTimeout(standbyTimeoutRef.current);
+          standbyTimeoutRef.current = null;
+        }
+      };
+    }
   }, [isPlaying, setDeviceOn]);
 
-  // When track ends, advance to next
+  // When track ends, advance to next and loop the list (last → first)
   useEffect(() => {
     if (status.didJustFinish) {
-      const next = (currentTrackIndex + 1) % TRACKS.length;
+      const next = (currentTrackIndexRef.current + 1) % TRACKS.length;
       setCurrentTrackIndex(next);
       player.replace(TRACKS[next].file);
       player.play();
     }
-  }, [status.didJustFinish]); // eslint-disable-line react-hooks/exhaustive-deps -- only react to didJustFinish
+  }, [status.didJustFinish, player]);
 
   const currentTrack = TRACKS[currentTrackIndex];
   const { title, artist } = parseTrackInfo(currentTrack.filename);
+  const currentTimeSec = status.currentTime ?? 0;
+  const durationSec = status.duration ?? 0;
+  const progress = durationSec > 0 ? Math.min(1, currentTimeSec / durationSec) : 0;
 
   const handlePlayPause = () => {
     if (isPlaying) {
@@ -147,6 +185,27 @@ export const MusicPlayerCard: React.FC = memo(function MusicPlayerCard() {
           <Text style={[styles.artist, { color: subtextColor }]} numberOfLines={1}>
             {artist}
           </Text>
+          <View style={styles.progressWrap}>
+            <View style={[styles.progressTrack, { backgroundColor: subtextColor + '25' }]}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${progress * 100}%`,
+                    backgroundColor: subtextColor + '60',
+                  },
+                ]}
+              />
+            </View>
+            <View style={styles.timeRow}>
+              <Text style={[styles.timeStamp, { color: subtextColor }]}>
+                {formatTime(currentTimeSec)}
+              </Text>
+              <Text style={[styles.timeStamp, { color: subtextColor }]}>
+                {formatTime(durationSec)}
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View style={styles.controls}>
@@ -196,6 +255,27 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: Typography.medium,
     marginTop: 2,
+  },
+  progressWrap: {
+    marginTop: 8,
+  },
+  progressTrack: {
+    height: 3,
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  timeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  timeStamp: {
+    fontSize: 11,
+    fontFamily: Typography.medium,
   },
   controls: {
     flexDirection: 'row',

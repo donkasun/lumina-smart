@@ -22,7 +22,7 @@ interface CustomSplashProps {
  * Ultra-optimized splash screen - Native animations only
  *
  * Animation Timeline (4.0 seconds total):
- * 0.0s - 0.7s: Logo scale + rotation entry
+ * 0.0s - 0.7s: Logo scale entry
  * 0.7s - 1.5s: Glow pulse (native shadow)
  * 1.0s - 1.5s: App name fade-in (simplified)
  * 1.3s - 1.8s: Tagline fade-in (simplified)
@@ -36,7 +36,6 @@ const CustomSplashComponent: React.FC<CustomSplashProps> = ({ onAnimationComplet
   // Animation values
   const containerOpacity = useSharedValue(1);
   const logoScale = useSharedValue(0);
-  const logoRotation = useSharedValue(0);
   const logoOpacity = useSharedValue(0);
   const glowOpacity = useSharedValue(0);
   const glowScale = useSharedValue(0.9);
@@ -56,11 +55,6 @@ const CustomSplashComponent: React.FC<CustomSplashProps> = ({ onAnimationComplet
         mass: 0.6,
       })
     );
-
-    logoRotation.value = withTiming(360, {
-      duration: 700,
-      easing: Easing.out(Easing.cubic),
-    });
 
     // Stage 2: Glow pulse (0.7s - 1.5s)
     glowOpacity.value = withDelay(
@@ -140,7 +134,6 @@ const CustomSplashComponent: React.FC<CustomSplashProps> = ({ onAnimationComplet
     glowOpacity,
     glowScale,
     logoOpacity,
-    logoRotation,
     logoScale,
     onAnimationComplete,
     progressWidth,
@@ -154,10 +147,7 @@ const CustomSplashComponent: React.FC<CustomSplashProps> = ({ onAnimationComplet
 
   const logoAnimatedStyle = useAnimatedStyle(() => ({
     opacity: logoOpacity.value,
-    transform: [
-      { scale: logoScale.value },
-      { rotate: `${logoRotation.value}deg` },
-    ],
+    transform: [{ scale: logoScale.value }],
   }));
 
   const glowStyle = useAnimatedStyle(() => ({

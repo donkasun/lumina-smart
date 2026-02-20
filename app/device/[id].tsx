@@ -3,21 +3,25 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { FrostedScreenWrapper } from '@/src/components/FrostedScreenWrapper';
 import { DeviceDetailControls } from '@/src/features/device-detail/DeviceDetailControls';
 import { DeviceDetailHeader } from '@/src/features/device-detail/DeviceDetailHeader';
+import { DoorbellBottomBar } from '@/src/features/device-detail/DoorbellDetail';
 import { DeviceType, useDeviceStore } from '@/src/store/useDeviceStore';
 import { haptics } from '@/src/utils/haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const TYPES_WITH_CUSTOM_HERO: DeviceType[] = ['light', 'thermostat', 'camera', 'solar'];
+const TYPES_WITH_CUSTOM_HERO: DeviceType[] = ['light', 'thermostat', 'camera', 'solar', 'vacuum', 'doorbell', 'purifier', 'sprinkler', 'lock'];
+
+const FLOATING_BAR_HEIGHT = 80;
 
 export default function DeviceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const devices = useDeviceStore((state) => state.devices);
   const device = devices.find((d) => d.id === id);
+  const insets = useSafeAreaInsets();
 
   const textColor = useThemeColor({}, 'text');
   const accentColor = useThemeColor({}, 'tint');
@@ -51,6 +55,9 @@ export default function DeviceDetailScreen() {
     );
   }
 
+  const isDoorbell = device.type === 'doorbell';
+  const scrollPaddingBottom = isDoorbell ? 96 + FLOATING_BAR_HEIGHT + insets.bottom : 96;
+
   return (
     <FrostedScreenWrapper>
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -58,13 +65,15 @@ export default function DeviceDetailScreen() {
           <TouchableOpacity onPress={handleBack} style={[styles.backButton, { backgroundColor: surfaceColor }]}>
             <Ionicons name="arrow-back" size={18} color={textColor} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: textColor }]}>{device.name}</Text>
+          <Text style={[styles.headerTitle, { color: textColor }]}>
+            {device.name}
+          </Text>
           <View style={{ width: 40 }} />
         </View>
 
         <ScrollView
           style={styles.content}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollPaddingBottom }]}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.contentInset}>
@@ -77,6 +86,14 @@ export default function DeviceDetailScreen() {
             </Animated.View>
           </View>
         </ScrollView>
+
+        {isDoorbell && (
+          <View style={[styles.floatingBar, { paddingBottom: insets.bottom + 12, paddingHorizontal: 16 }]}>
+            <View style={[styles.floatingBarCapsule, { backgroundColor: surfaceColor }]}>
+              <DoorbellBottomBar />
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </FrostedScreenWrapper>
   );
@@ -93,6 +110,23 @@ const styles = StyleSheet.create({
     paddingBottom: 96,
   },
   contentInset: {
+  },
+  floatingBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    overflow: 'visible',
+  },
+  floatingBarCapsule: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
+    elevation: 12,
   },
   header: {
     flexDirection: 'row',

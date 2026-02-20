@@ -16,6 +16,11 @@ interface AnimatedToggleProps {
   value: boolean;
   onChange: (value: boolean) => void;
   label?: string;
+  /** Override active (on) track color; defaults to theme accent */
+  activeColor?: string;
+  /** Labels shown inside the toggle; defaults to "ON" / "OFF" */
+  onLabel?: string;
+  offLabel?: string;
 }
 
 const TOGGLE_WIDTH = 68;
@@ -25,9 +30,17 @@ const THUMB_PADDING = 6;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export const AnimatedToggle: React.FC<AnimatedToggleProps> = ({ value, onChange, label }) => {
+export const AnimatedToggle: React.FC<AnimatedToggleProps> = ({
+  value,
+  onChange,
+  label,
+  activeColor: customActiveColor,
+  onLabel = 'ON',
+  offLabel = 'OFF',
+}) => {
   const surfaceColor = useThemeColor({}, 'surface');
   const accentColor = useThemeColor({}, 'accent');
+  const activeColor = customActiveColor ?? accentColor;
   const textColor = useThemeColor({}, 'text');
 
   const progress = useSharedValue(value ? 1 : 0);
@@ -61,7 +74,7 @@ export const AnimatedToggle: React.FC<AnimatedToggleProps> = ({ value, onChange,
     const backgroundColor = interpolateColor(
       progress.value,
       [0, 1],
-      [surfaceColor, accentColor]
+      [surfaceColor, activeColor]
     );
     return { backgroundColor };
   });
@@ -94,10 +107,10 @@ export const AnimatedToggle: React.FC<AnimatedToggleProps> = ({ value, onChange,
 
         <View style={styles.labelContainer}>
           <Text style={[styles.onOffText, { opacity: value ? 1 : 0, color: '#FFFFFF' }]}>
-            ON
+            {onLabel}
           </Text>
           <Text style={[styles.onOffText, { opacity: !value ? 1 : 0, color: textColor }]}>
-            OFF
+            {offLabel}
           </Text>
         </View>
       </AnimatedPressable>
